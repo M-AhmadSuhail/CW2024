@@ -20,35 +20,54 @@ public class Controller implements Observer {
 		this.stage = stage;
 	}
 
-	public void launchGame() throws ClassNotFoundException, NoSuchMethodException, SecurityException,
-			InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException  {
-
+	public void launchGame() {
+		try {
 			stage.show();
 			goToLevel(LEVEL_ONE_CLASS_NAME);
+		} catch (Exception e) {
+			handleException(e);
+		}
 	}
 
-	private void goToLevel(String className) throws ClassNotFoundException, NoSuchMethodException, SecurityException,
-			InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+	private void goToLevel(String className) {
+		try {
+			System.out.println("Attempting to load level: " + className); // Debugging log
 			Class<?> myClass = Class.forName(className);
 			Constructor<?> constructor = myClass.getConstructor(double.class, double.class);
 			LevelParent myLevel = (LevelParent) constructor.newInstance(stage.getHeight(), stage.getWidth());
+
+			// Ensure the LevelParent instance is set up correctly
 			myLevel.addObserver(this);
 			Scene scene = myLevel.initializeScene();
 			stage.setScene(scene);
 			myLevel.startGame();
-
-	}
-
-	@Override
-	public void update(Observable arg0, Object arg1) {
-		try {
-			goToLevel((String) arg1);
-		} catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException
-				| IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			Alert alert = new Alert(AlertType.ERROR);
-			alert.setContentText(e.getClass().toString());
-			alert.show();
+		} catch (ClassNotFoundException | NoSuchMethodException | InstantiationException
+				 | IllegalAccessException | InvocationTargetException e) {
+			handleException(e);
 		}
 	}
 
+	@Override
+	public void update(Observable observable, Object levelClassName) {
+		if (levelClassName instanceof String) {
+			try {
+				System.out.println("Transitioning to next level: " + levelClassName); // Debugging log
+				goToLevel((String) levelClassName);
+			} catch (Exception e) {
+				handleException(e);
+			}
+		} else {
+			System.out.println("Received unexpected update: " + levelClassName);
+		}
+	}
+
+	private void handleException(Exception e) {
+		Throwable cause = e instanceof InvocationTargetException ? e.getCause() : e;
+		if (cause != null) {
+			cause.printStackTrace(); // Log the root cause
+			Alert alert = new Alert(AlertType.ERROR);
+			alert.setContentText("Error: " + cause.getMessage());
+			alert.show();
+		}
+	}
 }
