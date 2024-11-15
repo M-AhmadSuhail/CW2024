@@ -27,7 +27,7 @@ public abstract class LevelParent extends Observable {
 	private final List<ActiveActorDestructible> enemyUnits;
 	private final List<ActiveActorDestructible> userProjectiles;
 	private final List<ActiveActorDestructible> enemyProjectiles;
-	
+
 	private int currentNumberOfEnemies;
 	private final LevelView levelView;
 
@@ -72,6 +72,7 @@ public abstract class LevelParent extends Observable {
 	}
 
 	public void goToNextLevel(String levelName) {
+		System.out.println("Notifying transition to level: " + levelName);
 		setChanged();
 		notifyObservers(levelName);
 	}
@@ -102,15 +103,15 @@ public abstract class LevelParent extends Observable {
 		background.setFitHeight(screenHeight);
 		background.setFitWidth(screenWidth);
 		background.setOnKeyPressed(e -> {
-            KeyCode kc = e.getCode();
-            if (kc == KeyCode.UP) user.moveUp();
-            if (kc == KeyCode.DOWN) user.moveDown();
-            if (kc == KeyCode.SPACE) fireProjectile();
-        });
+			KeyCode kc = e.getCode();
+			if (kc == KeyCode.UP) user.moveUp();
+			if (kc == KeyCode.DOWN) user.moveDown();
+			if (kc == KeyCode.SPACE) fireProjectile();
+		});
 		background.setOnKeyReleased(e -> {
-            KeyCode kc = e.getCode();
-            if (kc == KeyCode.UP || kc == KeyCode.DOWN) user.stop();
-        });
+			KeyCode kc = e.getCode();
+			if (kc == KeyCode.UP || kc == KeyCode.DOWN) user.stop();
+		});
 		root.getChildren().add(background);
 	}
 
@@ -165,7 +166,7 @@ public abstract class LevelParent extends Observable {
 	}
 
 	private void handleCollisions(List<ActiveActorDestructible> actors1,
-			List<ActiveActorDestructible> actors2) {
+								  List<ActiveActorDestructible> actors2) {
 		for (ActiveActorDestructible actor : actors2) {
 			for (ActiveActorDestructible otherActor : actors1) {
 				if (actor.getBoundsInParent().intersects(otherActor.getBoundsInParent())) {
