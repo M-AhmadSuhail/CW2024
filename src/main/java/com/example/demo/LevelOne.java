@@ -1,10 +1,11 @@
 package com.example.demo;
+import javafx.scene.Group;
 
 public class LevelOne extends LevelParent {
 
     private static final String BACKGROUND_IMAGE_NAME = "/com/example/demo/images/background1.jpg";
     private static final String NEXT_LEVEL = "com.example.demo.LevelTwo";
-    private static final int TOTAL_ENEMIES = 5;
+    private static final int TOTAL_ENEMIES = 5; // Make sure this is defined
     private static final int KILLS_TO_ADVANCE = 10;
     private static final double ENEMY_SPAWN_PROBABILITY = .20;
     private static final int PLAYER_INITIAL_HEALTH = 5;
@@ -13,13 +14,20 @@ public class LevelOne extends LevelParent {
         super(BACKGROUND_IMAGE_NAME, screenHeight, screenWidth, PLAYER_INITIAL_HEALTH);
     }
 
+    public void initializeGame(Group root) {
+        // Additional setup for the level (without DisplayKills)
+    }
+
     @Override
     protected void checkIfGameOver() {
         if (userIsDestroyed()) {
             loseGame();
+        } else {
+            // Check for advancing to the next level
+            if (userHasReachedKillTarget()) {
+                goToNextLevel(NEXT_LEVEL);
+            }
         }
-        else if (userHasReachedKillTarget())
-            goToNextLevel(NEXT_LEVEL);
     }
 
     @Override
@@ -47,5 +55,4 @@ public class LevelOne extends LevelParent {
     private boolean userHasReachedKillTarget() {
         return getUser().getNumberOfKills() >= KILLS_TO_ADVANCE;
     }
-
 }
