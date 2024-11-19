@@ -14,6 +14,7 @@ import javafx.scene.control.Alert.AlertType;
 
 import com.example.demo.LevelParent;
 import com.example.demo.GamePause;
+import com.example.demo.LevelTransitionManager;
 
 public class Controller implements Observer {
 
@@ -44,7 +45,7 @@ public class Controller implements Observer {
 				() -> System.out.println("Settings Opened")); // Settings logic placeholder
 	}
 
-	private void goToLevel(String className) {
+	public void goToLevel(String className) {
 		try {
 			System.out.println("Attempting to load level: " + className); // Debugging log
 			Class<?> myClass = Class.forName(className);
@@ -55,13 +56,13 @@ public class Controller implements Observer {
 			currentLevel.addObserver(this);
 			Scene scene = currentLevel.initializeScene();
 			scene.addEventFilter(KeyEvent.KEY_PRESSED, this::handleKeyPress); // Pause key listener
-			stage.setScene(scene);
+			stage.setScene(scene);  // stage.setScene expects a Scene, not Parent
 			currentLevel.startGame();
-		} catch (ClassNotFoundException | NoSuchMethodException | InstantiationException
-				 | IllegalAccessException | InvocationTargetException e) {
+		} catch (Exception e) {
 			handleException(e);
 		}
 	}
+
 
 	private void handleKeyPress(KeyEvent event) {
 		if (event.getCode() == KeyCode.P) {
@@ -95,10 +96,13 @@ public class Controller implements Observer {
 	public void update(Observable observable, Object levelClassName) {
 		if (levelClassName instanceof String) {
 			try {
-				System.out.println("Transitioning to next level: " + levelClassName); // Debugging log
-				goToLevel((String) levelClassName);
+				System.out.println("Ctrlr.j - Transitioning to next level: " + levelClassName + stage.getWidth() + stage.getHeight()); // Debugging log
+				LevelTransitionManager transitionManager = new LevelTransitionManager();
+				// Pass the stage object (not scene.getRoot()) to transitionToNextLevel
+				transitionManager.transitionToNextLevel(stage, (String) levelClassName, 1300.0, 750.0);
+
 			} catch (Exception e) {
-				handleException(e);
+				handleException(e); // Handle errors during level transition
 			}
 		} else {
 			System.out.println("Received unexpected update: " + levelClassName);

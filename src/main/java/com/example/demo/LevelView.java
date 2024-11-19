@@ -8,6 +8,8 @@ public class LevelView {
 
     private static final double HEART_DISPLAY_X_POSITION = 5;
     private static final double HEART_DISPLAY_Y_POSITION = 25;
+    private static final double KILL_DISPLAY_X_POSITION = 1000;
+    private static final double KILL_DISPLAY_Y_POSITION = 25;
     private static final int WIN_IMAGE_X_POSITION = 355;
     private static final int WIN_IMAGE_Y_POSITION = 175;
     private static final int LOSS_SCREEN_X_POSITION = -160;
@@ -16,31 +18,37 @@ public class LevelView {
     private final WinImage winImage;
     private final GameOverImage gameOverImage;
     private final HeartDisplay heartDisplay;
+    private final KillDisplay killDisplay;
 
-    public LevelView(Group root, int heartsToDisplay) {
+    public LevelView(Group root, int heartsToDisplay, int killsToDisplay) {
         this.root = root;
         this.heartDisplay = new HeartDisplay(HEART_DISPLAY_X_POSITION, HEART_DISPLAY_Y_POSITION, heartsToDisplay);
+        this.killDisplay = new KillDisplay(KILL_DISPLAY_X_POSITION, KILL_DISPLAY_Y_POSITION);
         this.winImage = new WinImage(WIN_IMAGE_X_POSITION, WIN_IMAGE_Y_POSITION);
         this.gameOverImage = new GameOverImage(LOSS_SCREEN_X_POSITION, LOSS_SCREEN_Y_POSITION);
     }
-// In LevelView class
-    private Label killCountLabel;
+    // In LevelView class
+    //private Label killCountLabel;
 
-    public void showKillCountLabel() {
-        killCountLabel = new Label("Kills: 0");
-        killCountLabel.setLayoutX(10);
-        killCountLabel.setLayoutY(10);
-        root.getChildren().add(killCountLabel); // Assuming 'root' is the game root layout
-    }
-
-    public void updateKillCount(int killCount) {
-        if (killCountLabel != null) {
-            killCountLabel.setText("Kills: " + killCount);
-        }
-    }
+//    public void showKillCountLabel() {
+//        killCountLabel = new Label("Kills: 0");
+//        killCountLabel.setLayoutX(10);
+//        killCountLabel.setLayoutY(10);
+//        root.getChildren().add(killCountLabel); // Assuming 'root' is the game root layout
+//    }
+//
+//    public void updateKillCount(int killCount) {
+//        if (killCountLabel != null) {
+//            killCountLabel.setText("Kills: " + killCount);
+//        }
+//    }
 
     public void showHeartDisplay() {
         root.getChildren().add(heartDisplay.getContainer());
+    }
+
+    public void showKillDisplay() {
+        root.getChildren().add(killDisplay.getContainer());
     }
 
     public void showWinImage() {
@@ -57,6 +65,10 @@ public class LevelView {
         for (int i = 0; i < currentNumberOfHearts - heartsRemaining; i++) {
             heartDisplay.removeHeart();
         }
+    }
+
+    public void updateKills(int newKillCount) {
+        killDisplay.updateKillCount(newKillCount);
     }
 
 }

@@ -1,6 +1,7 @@
 package com.example.demo;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import javafx.animation.*;
 import javafx.scene.Group;
@@ -30,8 +31,9 @@ public abstract class LevelParent extends Observable {
 
 	private int currentNumberOfEnemies;
 	private final LevelView levelView;
+	private final KillDisplay killDisplay;
 
-	// Declare the pause state here
+	// Pause state
 	protected boolean isPaused = false;
 
 	public LevelParent(String backgroundImageName, double screenHeight, double screenWidth, int playerInitialHealth) {
@@ -50,6 +52,8 @@ public abstract class LevelParent extends Observable {
 		this.enemyMaximumYPosition = screenHeight - SCREEN_HEIGHT_ADJUSTMENT;
 		this.levelView = instantiateLevelView();
 		this.currentNumberOfEnemies = 0;
+		this.killDisplay = new KillDisplay(10, 70); // Adjust position as needed
+		root.getChildren().add(killDisplay.getContainer());
 		initializeTimeline();
 		friendlyUnits.add(user);
 	}
@@ -66,6 +70,7 @@ public abstract class LevelParent extends Observable {
 		initializeBackground();
 		initializeFriendlyUnits();
 		levelView.showHeartDisplay();
+		levelView.showKillDisplay();
 		return scene;
 	}
 
@@ -74,23 +79,25 @@ public abstract class LevelParent extends Observable {
 		timeline.play();
 	}
 
-	public void goToNextLevel(String levelName) {
-		System.out.println("Notifying transition to level: " + levelName);
+	public void goToNextLevel(String nextLevelClassName) {
 		setChanged();
-		notifyObservers(levelName);
+		notifyObservers(nextLevelClassName);
 	}
 
 	private void updateScene() {
+		System.out.println("Updating scene...");
 		spawnEnemyUnits();
 		updateActors();
 		generateEnemyFire();
 		updateNumberOfEnemies();
 		handleEnemyPenetration();
-		handleUserProjectileCollisions();
-		handleEnemyProjectileCollisions();
-		handlePlaneCollisions();
+
+		boolean planeCollision = handlePlaneCollisions();
+		boolean userProjectileCollision = handleUserProjectileCollisions();
+		boolean enemyProjectileCollision = handleEnemyProjectileCollisions();
+
 		removeAllDestroyedActors();
-		updateKillCount();
+		updateKillCount(userProjectileCollision);
 		updateLevelView();
 		checkIfGameOver();
 	}
@@ -105,6 +112,8 @@ public abstract class LevelParent extends Observable {
 		background.setFocusTraversable(true);
 		background.setFitHeight(screenHeight);
 		background.setFitWidth(screenWidth);
+		background.setPreserveRatio(false);
+		background.setSmooth(true);
 		background.setOnKeyPressed(e -> {
 			KeyCode kc = e.getCode();
 			if (kc == KeyCode.UP) user.moveUp();
@@ -150,34 +159,36 @@ public abstract class LevelParent extends Observable {
 	}
 
 	private void removeDestroyedActors(List<ActiveActorDestructible> actors) {
-		List<ActiveActorDestructible> destroyedActors = actors.stream().filter(ActiveActorDestructible::isDestroyed)
-				.toList();
+		List<ActiveActorDestructible> destroyedActors = actors.stream().filter(ActiveActorDestructible::isDestroyed).toList();
 		root.getChildren().removeAll(destroyedActors);
 		actors.removeAll(destroyedActors);
 	}
 
-	private void handlePlaneCollisions() {
-		handleCollisions(friendlyUnits, enemyUnits);
+	private boolean handlePlaneCollisions() {
+		return handleCollisions(friendlyUnits, enemyUnits);
 	}
 
-	private void handleUserProjectileCollisions() {
-		handleCollisions(userProjectiles, enemyUnits);
+	private boolean handleUserProjectileCollisions() {
+		return handleCollisions(userProjectiles, enemyUnits);
 	}
 
-	private void handleEnemyProjectileCollisions() {
-		handleCollisions(enemyProjectiles, friendlyUnits);
+	private boolean handleEnemyProjectileCollisions() {
+		return handleCollisions(enemyProjectiles, friendlyUnits);
 	}
 
-	private void handleCollisions(List<ActiveActorDestructible> actors1,
-								  List<ActiveActorDestructible> actors2) {
+	private boolean handleCollisions(List<ActiveActorDestructible> actors1, List<ActiveActorDestructible> actors2) {
+		boolean collisionOccurred = false;
 		for (ActiveActorDestructible actor : actors2) {
 			for (ActiveActorDestructible otherActor : actors1) {
 				if (actor.getBoundsInParent().intersects(otherActor.getBoundsInParent())) {
+					System.out.println("Collision detected between " + actor + " and " + otherActor);
 					actor.takeDamage();
 					otherActor.takeDamage();
+					collisionOccurred = true;
 				}
 			}
 		}
+		return collisionOccurred;
 	}
 
 	private void handleEnemyPenetration() {
@@ -191,12 +202,16 @@ public abstract class LevelParent extends Observable {
 
 	private void updateLevelView() {
 		levelView.removeHearts(user.getHealth());
+		levelView.updateKills(user.getNumberOfKills());
 	}
 
-	private void updateKillCount() {
-		for (int i = 0; i < currentNumberOfEnemies - enemyUnits.size(); i++) {
+	private void updateKillCount(boolean collisionDetected) {
+		if (collisionDetected) {
 			user.incrementKillCount();
 		}
+		int killCount = user.getNumberOfKills();
+		killDisplay.updateKillCount(killCount);
+		System.out.println("Current kill count: " + killCount);
 	}
 
 	private boolean enemyHasPenetratedDefenses(ActiveActorDestructible enemy) {
@@ -246,12 +261,10 @@ public abstract class LevelParent extends Observable {
 		currentNumberOfEnemies = enemyUnits.size();
 	}
 
-	// Pause and resume game methods
-
 	public void pauseGame() {
 		if (!isPaused) {
 			System.out.println("Pausing game...");
-			timeline.pause();  // Pause the Timeline (game loop)
+			timeline.pause();
 			isPaused = true;
 		}
 	}
@@ -259,7 +272,7 @@ public abstract class LevelParent extends Observable {
 	public void resumeGame() {
 		if (isPaused) {
 			System.out.println("Resuming game...");
-			timeline.play();  // Resume the Timeline (game loop)
+			timeline.play();
 			isPaused = false;
 		}
 	}
