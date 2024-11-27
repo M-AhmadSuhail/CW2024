@@ -11,30 +11,20 @@ public class LevelOne extends LevelParent {
     private static final double ENEMY_SPAWN_PROBABILITY = 0.20;
     private static final int PLAYER_INITIAL_HEALTH = 5;
 
-    private boolean transitioning = false;  // Add this variable to track the transition state
+    private boolean transitioning = false;  // Added this variable to track the transition state
 
     public LevelOne(double screenHeight, double screenWidth) {
         super(BACKGROUND_IMAGE_NAME, screenHeight, screenWidth, PLAYER_INITIAL_HEALTH);
     }
 
-    public void initializeGame(Group root) {
-        // Additional setup for the level (without DisplayKills)
-    }
-
     @Override
     protected void checkIfGameOver() {
-        int currentKills = getUser().getNumberOfKills();
-        System.out.println("Checking if game is over. Current kills: " + currentKills);
-
-        // Check for player destruction (game over)
         if (userIsDestroyed()) {
             loseGame();
         }
-        // Check if user has reached the kill target
-        else if (!transitioning && currentKills >= KILLS_TO_ADVANCE) {
-            transitioning = true; // Prevent further transitions
-            System.out.println("User reached kill target. Transitioning to next level...");
-            goToNextLevel("com.example.demo.LevelTwo"); // Call the inherited method to transition
+        else if (userHasReachedKillTarget()) {
+            goToNextLevel(NEXT_LEVEL);
+            System.out.println("Going to next level");
         }
     }
 
@@ -64,8 +54,6 @@ public class LevelOne extends LevelParent {
     }
 
     private boolean userHasReachedKillTarget() {
-        int kills = getUser().getNumberOfKills();
-        System.out.println("Current kill count: " + kills);
-        return kills >= KILLS_TO_ADVANCE;  // Ensure this compares with the correct target kill count
+        return getUser().getNumberOfHits() >= KILLS_TO_ADVANCE;
     }
 }

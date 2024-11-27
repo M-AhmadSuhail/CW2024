@@ -7,34 +7,39 @@ public class UserPlane extends FighterPlane {
 	private static final double Y_LOWER_BOUND = 600.0;
 	private static final double INITIAL_X_POSITION = 5.0;
 	private static final double INITIAL_Y_POSITION = 300.0;
-	private static final int IMAGE_HEIGHT = 150;  // Current height of the plane (can adjust to reduce hitbox)
-	private static final int IMAGE_WIDTH = 100;   // Current width of the plane (can adjust to reduce hitbox)
+	private static final int IMAGE_HEIGHT = 50;  // Current height of the plane
+	private static final int IMAGE_WIDTH = 100; // Current width of the plane
 	private static final int VERTICAL_VELOCITY = 8;
 	private static final int PROJECTILE_X_POSITION = 110;
 	private static final int PROJECTILE_Y_POSITION_OFFSET = 20;
+	private static final long FIRE_RATE_COOLDOWN = 0;
 
 	// Custom hitbox dimensions
-	private static final int HITBOX_HEIGHT = 50;  // Smaller hitbox height
-	private static final int HITBOX_WIDTH = 35;    // Smaller hitbox width
+	private static final int HITBOX_HEIGHT = 50;
+	private static final int HITBOX_WIDTH = 35;
 
-	private int velocityMultiplier;
+	private int verticalDirection;
 	private int numberOfKills;
+	private int numberOfHits;
+	private long lastProjectileTime;
 
 	public UserPlane(int initialHealth) {
 		super(IMAGE_NAME, IMAGE_HEIGHT, INITIAL_X_POSITION, INITIAL_Y_POSITION, initialHealth);
-		velocityMultiplier = 0;
+		verticalDirection = 0;
+		lastProjectileTime = 0; // Initialize cooldown timer
 	}
 
 	@Override
 	public void updatePosition() {
 		if (isMoving()) {
 			double initialTranslateY = getTranslateY();
-			this.moveVertically(VERTICAL_VELOCITY * velocityMultiplier);
+			this.moveVertically(VERTICAL_VELOCITY * verticalDirection);
 			double newPosition = getLayoutY() + getTranslateY();
 			if (newPosition < Y_UPPER_BOUND || newPosition > Y_LOWER_BOUND) {
 				this.setTranslateY(initialTranslateY);
 			}
 		}
+		super.updatePosition();
 	}
 
 	@Override
@@ -44,31 +49,47 @@ public class UserPlane extends FighterPlane {
 
 	@Override
 	public ActiveActorDestructible fireProjectile() {
-		return new UserProjectile(PROJECTILE_X_POSITION, getProjectileYPosition(PROJECTILE_Y_POSITION_OFFSET));
+		long currentTime = System.currentTimeMillis();
+		if (currentTime - lastProjectileTime >= FIRE_RATE_COOLDOWN) { // Check cooldown
+			lastProjectileTime = currentTime; // Update last fired time
+			return new UserProjectile(PROJECTILE_X_POSITION, getProjectileYPosition(PROJECTILE_Y_POSITION_OFFSET));
+		} else {
+			// Cooldown active, no projectile fired
+			System.out.println("Cooldown active, cannot fire yet!");
+			return null;
+		}
 	}
 
 	private boolean isMoving() {
-		return velocityMultiplier != 0;
+		return verticalDirection != 0;
 	}
 
 	public void moveUp() {
-		velocityMultiplier = -1;
+		verticalDirection = -1;
 	}
 
 	public void moveDown() {
-		velocityMultiplier = 1;
+		verticalDirection = 1;
 	}
 
 	public void stop() {
-		velocityMultiplier = 0;
+		verticalDirection = 0;
 	}
 
-	public int getNumberOfKills() {
-		return numberOfKills;
+//	public int getNumberOfKills() {
+//		return numberOfKills;
+//	}
+
+//	public void incrementKillCount() {
+//		numberOfKills++;
+//	}
+
+	public int getNumberOfHits() {
+		return numberOfHits;
 	}
 
-	public void incrementKillCount() {
-		numberOfKills++;
+	public void incrementHitCount() {
+		numberOfHits++;
 	}
 
 	// Custom hitbox method for checking collisions

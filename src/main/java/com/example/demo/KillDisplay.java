@@ -52,6 +52,9 @@ public class KillDisplay {
     public void updateKillCount(int kills) {
         killCountLabel.setText(String.valueOf(kills));
     }
+    public void resetKillCount() {
+        updateKillCount(0);
+    }
 
     // Method to get the container (HBox) to add to the scene
     public HBox getContainer() {

@@ -11,7 +11,4 @@ public abstract class Projectile extends ActiveActorDestructible {
 		this.destroy();
 	}
 
-	@Override
-	public abstract void updatePosition();
-
 }

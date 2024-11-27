@@ -5,117 +5,136 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Observable;
 import java.util.Observer;
 
+import com.example.demo.*;
+import javafx.animation.Timeline;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
-
-import com.example.demo.LevelParent;
-import com.example.demo.GamePause;
-import com.example.demo.LevelTransitionManager;
 
 public class Controller implements Observer {
 
-	private static final String LEVEL_ONE_CLASS_NAME = "com.example.demo.LevelOne";
-	private final Stage stage;
-	private GamePause gamePause;
-	private LevelParent currentLevel;
-	private boolean isPaused = false; // Track pause state
+	public static final String LEVEL_ONE_CLASS_NAME = "com.example.demo.LevelOne";
 
-	public Controller(Stage stage) {
+	private final Stage stage;
+	private final LevelView levelView;
+	private final GamePause gamePause;
+	private LevelParent currentLevel;
+	private boolean isPaused = false; // Tracks the pause state
+	private final Timeline timeline;
+
+	public Controller(Stage stage, LevelView levelView) {
 		this.stage = stage;
-		initializeGamePause();
+		this.levelView = levelView;
+		this.timeline = new Timeline(); // Correct timeline initialization
+		this.levelView.setController(this);
+
+		this.gamePause = new GamePause(stage, this::resumeGame, this::closeGame, this::openSettings, timeline);
+
+		LevelParent.setController(this);
 	}
 
 	public void launchGame() {
 		try {
 			stage.show();
 			goToLevel(LEVEL_ONE_CLASS_NAME);
-		} catch (Exception e) {
-			handleException(e);
+		} catch (ClassNotFoundException | NoSuchMethodException | SecurityException |
+				 InstantiationException | IllegalAccessException | IllegalArgumentException |
+				 InvocationTargetException e) {
+			// Handle exceptions gracefully, log, or show an error to the user
+			System.err.println("Error launching the game: " + e.getMessage());
+			e.printStackTrace();
 		}
 	}
 
-	private void initializeGamePause() {
-		gamePause = new GamePause(stage,
-				this::resumeGame, // Resume game logic
-				() -> System.exit(0), // Exit game logic
-				() -> System.out.println("Settings Opened")); // Settings logic placeholder
+	// Transition to a specified level using reflection
+	public void goToLevel(String className) throws ClassNotFoundException, NoSuchMethodException, SecurityException,
+			InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		Class<?> myClass = Class.forName(className);
+		Constructor<?> constructor = myClass.getConstructor(double.class, double.class);
+		LevelParent myLevel = (LevelParent) constructor.newInstance(stage.getHeight(), stage.getWidth());
+		myLevel.addObserver(this);
+		Scene scene = myLevel.initializeScene();
+		stage.setScene(scene);
+		myLevel.startGame();
+		scene.addEventHandler(KeyEvent.KEY_PRESSED, this::handleKeyPress); // Add key event handlers
 	}
 
-	public void goToLevel(String className) {
-		try {
-			System.out.println("Attempting to load level: " + className); // Debugging log
-			Class<?> myClass = Class.forName(className);
-			Constructor<?> constructor = myClass.getConstructor(double.class, double.class);
-			currentLevel = (LevelParent) constructor.newInstance(stage.getHeight(), stage.getWidth());
-
-			// Ensure the LevelParent instance is set up correctly
-			currentLevel.addObserver(this);
-			Scene scene = currentLevel.initializeScene();
-			scene.addEventFilter(KeyEvent.KEY_PRESSED, this::handleKeyPress); // Pause key listener
-			stage.setScene(scene);  // stage.setScene expects a Scene, not Parent
-			currentLevel.startGame();
-		} catch (Exception e) {
-			handleException(e);
-		}
-	}
-
-
+	// Handle key press events for pausing and restarting
 	private void handleKeyPress(KeyEvent event) {
-		if (event.getCode() == KeyCode.P) {
+		if (event.getCode() == KeyCode.P) { // Pause/unpause the game
 			if (isPaused) {
 				resumeGame();
 			} else {
 				pauseGame();
 			}
+		} else if (event.getCode() == KeyCode.R) { // Restart the game
+			restartGame();
 		}
 	}
 
+	// Pause the game and show the pause menu
 	private void pauseGame() {
 		System.out.println("Game Paused");
 		isPaused = true;
+
+		// Pause the main timeline (game loop)
+		timeline.pause();
+
+		// Pause any other background game processes
 		if (currentLevel != null) {
-			currentLevel.pauseGame(); // Custom pause logic in the LevelParent class
+			currentLevel.pauseGame();  // Pauses the level-specific game logic
 		}
+
+		// Optionally, stop other background tasks here (e.g., music, animations, etc.)
+
+		// Show the pause menu
 		gamePause.show();
 	}
 
 	private void resumeGame() {
 		System.out.println("Game Resumed");
 		isPaused = false;
+
+		// Resume the main timeline (game loop)
+		timeline.play();
+
+		// Resume level-specific game logic
 		if (currentLevel != null) {
-			currentLevel.resumeGame(); // Custom resume logic in the LevelParent class
+			currentLevel.resumeGame();  // Resumes the level-specific game logic
 		}
-		gamePause.hide(); // Close the pause menu using the instance
+
+		// Resume other game processes (e.g., background music, animations, etc.)
+		if (currentLevel != null) {
+			currentLevel.resumeGame();  // Ensure animations or updates are resumed
+		}
+
+		// Hide the pause menu
+		gamePause.hide();
 	}
 
-	@Override
-	public void update(Observable observable, Object levelClassName) {
-		if (levelClassName instanceof String) {
-			try {
-				System.out.println("Ctrlr.j - Transitioning to next level: " + levelClassName + stage.getWidth() + stage.getHeight()); // Debugging log
-				LevelTransitionManager transitionManager = new LevelTransitionManager();
-				// Pass the stage object (not scene.getRoot()) to transitionToNextLevel
-				transitionManager.transitionToNextLevel(stage, (String) levelClassName, 1300.0, 750.0);
-
-			} catch (Exception e) {
-				handleException(e); // Handle errors during level transition
-			}
-		} else {
-			System.out.println("Received unexpected update: " + levelClassName);
+	public void update(Observable observable, Object arg) {
+		try {
+			goToLevel((String) arg);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
-	private void handleException(Exception e) {
-		Throwable cause = e instanceof InvocationTargetException ? e.getCause() : e;
-		if (cause != null) {
-			cause.printStackTrace(); // Log the root cause
-			Alert alert = new Alert(AlertType.ERROR);
-			alert.setContentText("Error: " + cause.getMessage());
-			alert.show();
-		}
+	public void restartGame() {
+		System.out.println("Game Restarting...");
+		timeline.play();
+		launchGame();  // Re-launch the game
+	}
+
+	// Handle closing the game
+	private void closeGame() {
+		System.out.println("Exiting game...");
+		System.exit(0);
+	}
+
+	// Placeholder for opening settings
+	private void openSettings() {
+		System.out.println("Settings menu opened (placeholder)");
 	}
 }

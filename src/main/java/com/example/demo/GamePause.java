@@ -8,7 +8,8 @@ import javafx.scene.text.Font;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.scene.input.KeyCode; // Import KeyCode
+import javafx.scene.input.KeyCode;
+import javafx.animation.Timeline; // Import Timeline
 
 public class GamePause {
 
@@ -16,11 +17,13 @@ public class GamePause {
     private final Runnable onResume;
     private final Runnable onExit;
     private final Runnable onSettings;
+    private final Timeline gameLoop; // Reference to the game loop
 
-    public GamePause(Stage primaryStage, Runnable onResume, Runnable onExit, Runnable onSettings) {
+    public GamePause(Stage primaryStage, Runnable onResume, Runnable onExit, Runnable onSettings, Timeline gameLoop) {
         this.onResume = onResume;
         this.onExit = onExit;
         this.onSettings = onSettings;
+        this.gameLoop = gameLoop; // Initialize the game loop
 
         // Create the pause stage
         pauseStage = new Stage();
@@ -57,11 +60,14 @@ public class GamePause {
     }
 
     public void show() {
+        if (gameLoop != null) {
+            gameLoop.pause(); // Pause the game loop
+        }
         pauseStage.show();
 
         // Add key press handler to the scene for 'P'
         pauseStage.getScene().setOnKeyPressed(event -> {
-            if (event.getCode() == KeyCode.P) { // Resume when 'P' is pressed
+            if (event.getCode() == KeyCode.P) {
                 resumeGame();
             }
         });
@@ -69,6 +75,9 @@ public class GamePause {
 
     public void hide() {
         pauseStage.close();
+        if (gameLoop != null) {
+            gameLoop.play(); // Resume the game loop
+        }
     }
 
     private void resumeGame() {

@@ -1,3 +1,4 @@
+
 package com.example.demo;
 
 import java.util.*;
@@ -9,21 +10,22 @@ public class Boss extends FighterPlane {
 	private static final double INITIAL_Y_POSITION = 400;
 	private static final double PROJECTILE_Y_POSITION_OFFSET = 75.0;
 	private static final double BOSS_FIRE_RATE = .04;
-	private static final double BOSS_SHIELD_PROBABILITY = .002;
-	private static final int IMAGE_HEIGHT = 300;
+	private static final double BOSS_SHIELD_PROBABILITY = .01;
+	private static final int IMAGE_HEIGHT = 100;
 	private static final int VERTICAL_VELOCITY = 8;
-	private static final int HEALTH = 100;
+	private static final int HEALTH = 10;
 	private static final int MOVE_FREQUENCY_PER_CYCLE = 5;
 	private static final int ZERO = 0;
 	private static final int MAX_FRAMES_WITH_SAME_MOVE = 10;
 	private static final int Y_POSITION_UPPER_BOUND = -100;
 	private static final int Y_POSITION_LOWER_BOUND = 475;
-	private static final int MAX_FRAMES_WITH_SHIELD = 500;
+	private static final int MAX_FRAMES_WITH_SHIELD = 50;
 	private final List<Integer> movePattern;
 	private boolean isShielded;
 	private int consecutiveMovesInSameDirection;
 	private int indexOfCurrentMove;
 	private int framesWithShieldActivated;
+	private LevelView levelView;
 
 	public Boss() {
 		super(IMAGE_NAME, IMAGE_HEIGHT, INITIAL_X_POSITION, INITIAL_Y_POSITION, HEALTH);
@@ -43,6 +45,7 @@ public class Boss extends FighterPlane {
 		if (currentPosition < Y_POSITION_UPPER_BOUND || currentPosition > Y_POSITION_LOWER_BOUND) {
 			setTranslateY(initialTranslateY);
 		}
+		super.updatePosition();
 	}
 
 	@Override
@@ -60,8 +63,14 @@ public class Boss extends FighterPlane {
 	public void takeDamage() {
 		if (!isShielded) {
 			super.takeDamage();
+			System.out.println("Boss health: " + getHealth());
 		}
 	}
+
+//	@Override
+//	public boolean isDestroyed() {
+//		return super.getHealth() <= 0; // Return true if health is 0 or less
+//	}
 
 	private void initializeMovePattern() {
 		for (int i = 0; i < MOVE_FREQUENCY_PER_CYCLE; i++) {
@@ -72,11 +81,25 @@ public class Boss extends FighterPlane {
 		Collections.shuffle(movePattern);
 	}
 
-	private void updateShield() {
-		if (isShielded) framesWithShieldActivated++;
-		else if (shieldShouldBeActivated()) activateShield();
-		if (shieldExhausted()) deactivateShield();
+	public void setLevelView(LevelView levelView) {
+		this.levelView = levelView;
 	}
+
+	private void updateShield() {
+		if (isShielded) {
+			framesWithShieldActivated++;
+		} else if (shieldShouldBeActivated()) {
+			activateShield();
+			levelView.showShield(); // Show shield
+//			System.out.println("Shield activated!");
+		}
+		if (shieldExhausted()) {
+			deactivateShield();
+			levelView.hideShield(); // Hide shield
+//			System.out.println("Shield off!");
+		}
+	}
+
 
 	private int getNextMove() {
 		int currentMove = movePattern.get(indexOfCurrentMove);
@@ -98,6 +121,10 @@ public class Boss extends FighterPlane {
 
 	private double getProjectileInitialPosition() {
 		return getLayoutY() + getTranslateY() + PROJECTILE_Y_POSITION_OFFSET;
+	}
+
+	static double getBossXPosition() {
+		return INITIAL_X_POSITION;
 	}
 
 	private boolean shieldShouldBeActivated() {

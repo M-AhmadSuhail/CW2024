@@ -1,4 +1,5 @@
 package com.example.demo;
+import com.example.demo.controller.Main;
 
 public abstract class ActiveActorDestructible extends ActiveActor implements Destructible {
 
@@ -8,9 +9,19 @@ public abstract class ActiveActorDestructible extends ActiveActor implements Des
 		super(imageName, imageHeight, initialXPos, initialYPos);
 		isDestroyed = false;
 	}
+	public boolean isOutOfBounds(double x,double screenWidth) {
+		return x < 0 || x > screenWidth;
+	}
 
 	@Override
-	public abstract void updatePosition();
+	public void updatePosition() {
+		double x = getLayoutX() + getTranslateX();
+		//double y = getLayoutY() + getTranslateY();
+		if (isOutOfBounds(x, Main.getScreenWidth())) {
+			System.out.println(this.getClass().getSimpleName() + " eOut of Bound.");
+			this.destroy();
+		}
+	}
 
 	public abstract void updateActor();
 

@@ -14,6 +14,7 @@ public class BossProjectile extends Projectile {
 	@Override
 	public void updatePosition() {
 		moveHorizontally(HORIZONTAL_VELOCITY);
+		super.updatePosition();
 	}
 
 	@Override

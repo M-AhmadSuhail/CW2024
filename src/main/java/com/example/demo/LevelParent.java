@@ -3,6 +3,7 @@ package com.example.demo;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.example.demo.controller.Controller;
 import javafx.animation.*;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -14,10 +15,13 @@ public abstract class LevelParent extends Observable {
 
 	private static final double SCREEN_HEIGHT_ADJUSTMENT = 150;
 	private static final int MILLISECOND_DELAY = 50;
+	private static final int PROJECTILE_COOLDOWN = 200; // Cooldown duration in milliseconds
+
 	private final double screenHeight;
 	private final double screenWidth;
 	private final double enemyMaximumYPosition;
 
+	private static Controller controller;
 	private final Group root;
 	private final Timeline timeline;
 	private final UserPlane user;
@@ -30,11 +34,13 @@ public abstract class LevelParent extends Observable {
 	private final List<ActiveActorDestructible> enemyProjectiles;
 
 	private int currentNumberOfEnemies;
-	private final LevelView levelView;
+	protected final LevelView levelView;
 	private final KillDisplay killDisplay;
+	protected abstract LevelView instantiateLevelView();
 
 	// Pause state
 	protected boolean isPaused = false;
+	private boolean isCooldown = false; // Cooldown state
 
 	public LevelParent(String backgroundImageName, double screenHeight, double screenWidth, int playerInitialHealth) {
 		this.root = new Group();
@@ -58,13 +64,16 @@ public abstract class LevelParent extends Observable {
 		friendlyUnits.add(user);
 	}
 
+	public static void setController(Controller gameController) {
+		controller = gameController;
+	}
+
 	protected abstract void initializeFriendlyUnits();
 
 	protected abstract void checkIfGameOver();
 
 	protected abstract void spawnEnemyUnits();
 
-	protected abstract LevelView instantiateLevelView();
 
 	public Scene initializeScene() {
 		initializeBackground();
@@ -80,12 +89,12 @@ public abstract class LevelParent extends Observable {
 	}
 
 	public void goToNextLevel(String nextLevelClassName) {
+		timeline.stop();
 		setChanged();
 		notifyObservers(nextLevelClassName);
 	}
 
 	private void updateScene() {
-		System.out.println("Updating scene...");
 		spawnEnemyUnits();
 		updateActors();
 		generateEnemyFire();
@@ -97,7 +106,7 @@ public abstract class LevelParent extends Observable {
 		boolean enemyProjectileCollision = handleEnemyProjectileCollisions();
 
 		removeAllDestroyedActors();
-		updateKillCount(userProjectileCollision);
+		updateHitCount(userProjectileCollision);
 		updateLevelView();
 		checkIfGameOver();
 	}
@@ -119,6 +128,7 @@ public abstract class LevelParent extends Observable {
 			if (kc == KeyCode.UP) user.moveUp();
 			if (kc == KeyCode.DOWN) user.moveDown();
 			if (kc == KeyCode.SPACE) fireProjectile();
+			if (kc == KeyCode.P) togglePause();  // Listen for P key to pause/unpause
 		});
 		background.setOnKeyReleased(e -> {
 			KeyCode kc = e.getCode();
@@ -127,10 +137,31 @@ public abstract class LevelParent extends Observable {
 		root.getChildren().add(background);
 	}
 
+	private void togglePause() {
+		if (isPaused) {
+			resumeGame();
+		} else {
+			pauseGame();
+		}
+	}
 	private void fireProjectile() {
-		ActiveActorDestructible projectile = user.fireProjectile();
-		root.getChildren().add(projectile);
-		userProjectiles.add(projectile);
+		if (!isCooldown) { // Check if the cooldown is inactive
+			ActiveActorDestructible projectile = user.fireProjectile();
+			if (projectile != null) { // Only add the projectile if it is not null
+				root.getChildren().add(projectile);
+				userProjectiles.add(projectile);
+				startCooldown(); // Start cooldown after firing
+			}
+		} else {
+			System.out.println("Projectile not fired. Cooldown in effect.");
+		}
+	}
+
+	private void startCooldown() {
+		isCooldown = true; // Set cooldown flag to true
+		PauseTransition cooldownTimer = new PauseTransition(Duration.millis(PROJECTILE_COOLDOWN));
+		cooldownTimer.setOnFinished(event -> isCooldown = false); // Reset the cooldown after the specified time
+		cooldownTimer.play();
 	}
 
 	private void generateEnemyFire() {
@@ -159,9 +190,11 @@ public abstract class LevelParent extends Observable {
 	}
 
 	private void removeDestroyedActors(List<ActiveActorDestructible> actors) {
-		List<ActiveActorDestructible> destroyedActors = actors.stream().filter(ActiveActorDestructible::isDestroyed).toList();
-		root.getChildren().removeAll(destroyedActors);
-		actors.removeAll(destroyedActors);
+		List<ActiveActorDestructible> destroyedActors = actors.stream()
+				.filter(ActiveActorDestructible::isDestroyed)
+				.collect(Collectors.toList());
+		root.getChildren().removeAll(destroyedActors); // Remove from scene
+		actors.removeAll(destroyedActors);            // Remove from list
 	}
 
 	private boolean handlePlaneCollisions() {
@@ -181,7 +214,6 @@ public abstract class LevelParent extends Observable {
 		for (ActiveActorDestructible actor : actors2) {
 			for (ActiveActorDestructible otherActor : actors1) {
 				if (actor.getBoundsInParent().intersects(otherActor.getBoundsInParent())) {
-					System.out.println("Collision detected between " + actor + " and " + otherActor);
 					actor.takeDamage();
 					otherActor.takeDamage();
 					collisionOccurred = true;
@@ -202,16 +234,14 @@ public abstract class LevelParent extends Observable {
 
 	private void updateLevelView() {
 		levelView.removeHearts(user.getHealth());
-		levelView.updateKills(user.getNumberOfKills());
+		levelView.updateKills(user.getNumberOfHits());
 	}
 
-	private void updateKillCount(boolean collisionDetected) {
+	private void updateHitCount(boolean collisionDetected) {
 		if (collisionDetected) {
-			user.incrementKillCount();
+			user.incrementHitCount(); // Update hit count if a collision occurred
+			System.out.println("User hit-count: " + user.getNumberOfHits());
 		}
-		int killCount = user.getNumberOfKills();
-		killDisplay.updateKillCount(killCount);
-		System.out.println("Current kill count: " + killCount);
 	}
 
 	private boolean enemyHasPenetratedDefenses(ActiveActorDestructible enemy) {
@@ -221,59 +251,91 @@ public abstract class LevelParent extends Observable {
 	protected void winGame() {
 		timeline.stop();
 		levelView.showWinImage();
+		EndGameScreen endGameMenu = new EndGameScreen("You Win!", screenWidth, screenHeight);
+		EndGameScreenActions(endGameMenu);
+		root.getChildren().add(endGameMenu);
 	}
 
 	protected void loseGame() {
 		timeline.stop();
 		levelView.showGameOverImage();
+		EndGameScreen endGameMenu = new EndGameScreen("Game Over", screenWidth, screenHeight);
+		EndGameScreenActions(endGameMenu);
+		root.getChildren().add(endGameMenu);
 	}
 
-	protected UserPlane getUser() {
-		return user;
-	}
+	private void EndGameScreenActions(EndGameScreen endGameMenu) {
+		endGameMenu.getExitButton().setOnAction(event -> {
+			System.out.println("Exiting game...");
+			System.exit(0); // Exit the application
+		});
 
-	protected Group getRoot() {
-		return root;
+		endGameMenu.getRestartButton().setOnAction(event -> {
+			System.out.println("Restarting game...");
+			restartGame();
+		});
 	}
+			private void restartGame () {
+				try {
+					controller.goToLevel(Controller.LEVEL_ONE_CLASS_NAME); // Call Controller to restart the game
+				} catch (Exception e) {
+					e.printStackTrace();
+					System.err.println("Failed to restart the game.");
+				}
+			}
 
-	protected int getCurrentNumberOfEnemies() {
-		return enemyUnits.size();
-	}
+			public void pauseGame () {
+				if (!isPaused) {
+					System.out.println("Pausing game...");
+					timeline.stop();
+					if (timeline != null) timeline.pause();
+					// Add more elements to pause
+					isPaused = true;
+				}
+			}
 
-	protected void addEnemyUnit(ActiveActorDestructible enemy) {
-		enemyUnits.add(enemy);
-		root.getChildren().add(enemy);
-	}
+			public void resumeGame () {
+				if (isPaused) {
+					System.out.println("Resuming game...");
+					timeline.play();
+					if (timeline != null) timeline.play();
+					// Add more elements to resume
+					isPaused = false;
+				}
+			}
 
-	protected double getEnemyMaximumYPosition() {
-		return enemyMaximumYPosition;
-	}
+			protected UserPlane getUser () {
+				return user;
+			}
 
-	protected double getScreenWidth() {
-		return screenWidth;
-	}
+			protected Group getRoot () {
+				return root;
+			}
 
-	protected boolean userIsDestroyed() {
-		return user.isDestroyed();
-	}
+			protected int getCurrentNumberOfEnemies () {
+				return enemyUnits.size();
+			}
 
-	private void updateNumberOfEnemies() {
-		currentNumberOfEnemies = enemyUnits.size();
-	}
+			protected void addEnemyUnit (ActiveActorDestructible enemy){
+				enemyUnits.add(enemy);
+				root.getChildren().add(enemy);
+			}
 
-	public void pauseGame() {
-		if (!isPaused) {
-			System.out.println("Pausing game...");
-			timeline.pause();
-			isPaused = true;
+			protected double getEnemyMaximumYPosition () {
+				return enemyMaximumYPosition;
+			}
+
+			protected double getScreenWidth () {
+				return screenWidth;
+			}
+
+			protected boolean userIsDestroyed () {
+				return user.isDestroyed();
+			}
+
+			private void updateNumberOfEnemies () {
+				currentNumberOfEnemies = enemyUnits.size();
+			}
+
 		}
-	}
 
-	public void resumeGame() {
-		if (isPaused) {
-			System.out.println("Resuming game...");
-			timeline.play();
-			isPaused = false;
-		}
-	}
-}
