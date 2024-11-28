@@ -2,7 +2,9 @@ package com.example.demo;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import com.example.demo.controller.Controller;
 import javafx.animation.*;
 import javafx.scene.Group;
@@ -294,15 +296,15 @@ public abstract class LevelParent extends Observable {
 				}
 			}
 
-			public void resumeGame () {
-				if (isPaused) {
-					System.out.println("Resuming game...");
-					timeline.play();
-					if (timeline != null) timeline.play();
-					// Add more elements to resume
-					isPaused = false;
-				}
-			}
+	public void resumeGame () {
+		if (isPaused) {
+			System.out.println("Resuming game...");
+			timeline.play();
+			if (timeline != null) timeline.play();
+			// Add more elements to resume
+			isPaused = false;
+		}
+	}
 
 			protected UserPlane getUser () {
 				return user;
