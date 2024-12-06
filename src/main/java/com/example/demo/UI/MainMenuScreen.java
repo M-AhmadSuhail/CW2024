@@ -1,5 +1,6 @@
-package com.example.demo;
+package com.example.demo.UI;
 
+import com.example.demo.LevelController.LevelView;
 import com.example.demo.controller.Controller;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -16,7 +17,7 @@ import javafx.scene.text.Font;
 
 public class MainMenuScreen {
 
-    private static final String BACKGROUND_IMAGE = "/com/example/demo/images/mainMenuBG.jpg";
+    private static final String BACKGROUND_IMAGE = "/com/example/demo/images/MenuBG.jpg";
 
     public void start(Stage primaryStage) {
         // Load the background image
@@ -31,6 +32,13 @@ public class MainMenuScreen {
             e.printStackTrace();
         }
 
+        Text gameTitle = new Text("Sky Battle!");
+        gameTitle.setFont(Font.font("Verdana", javafx.scene.text.FontWeight.BOLD, 48)); // Bold font
+        gameTitle.setStyle(
+                "-fx-fill: white;" +  // White text color
+                        "-fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.8), 10, 0, 0, 5);" // Drop shadow
+        );
+        gameTitle.setTranslateY(-100);
         // Create buttons
         Button playButton = createButton("Play", event -> {
             LevelView levelView = new LevelView(new javafx.scene.Group(), 3, 0);
@@ -42,11 +50,11 @@ public class MainMenuScreen {
 
         Button quitButton = createButton("Quit", event -> primaryStage.close());
 
-        // Layout for buttons
+        // Layout for buttons and title
         VBox buttonsLayout = new VBox(20);
-        buttonsLayout.getChildren().addAll(playButton, howToPlayButton, quitButton);
+        buttonsLayout.getChildren().addAll(gameTitle, playButton, howToPlayButton, quitButton);
         buttonsLayout.setAlignment(Pos.CENTER);
-        buttonsLayout.setTranslateY(50); // Adjusts the buttons to be moved down slightly
+        buttonsLayout.setTranslateY(50); // Adjusts the buttons and title to be moved down slightly
 
         // Create root layout
         StackPane root = new StackPane();
