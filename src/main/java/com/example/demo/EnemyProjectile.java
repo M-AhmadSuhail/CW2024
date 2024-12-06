@@ -2,6 +2,8 @@ package com.example.demo;
 
 public class EnemyProjectile extends Projectile {
 
+	private Runnable onDestruction;
+
 	private static final String IMAGE_NAME = "enemyFire.png";
 	private static final int IMAGE_HEIGHT = 15;
 	private static final int HORIZONTAL_VELOCITY = -10;
@@ -14,6 +16,16 @@ public class EnemyProjectile extends Projectile {
 	public void updatePosition() {
 		moveHorizontally(HORIZONTAL_VELOCITY);
 		super.updatePosition();
+	}
+	public void setOnDestruction(Runnable onDestruction) {
+		this.onDestruction = onDestruction;
+	}
+	@Override
+	public void destroy() {
+		if (onDestruction != null) {
+			onDestruction.run();
+		}
+		super.destroy();
 	}
 
 	@Override

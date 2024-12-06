@@ -1,14 +1,19 @@
-package com.example.demo;
+package com.example.demo.Levels;
 
-public class LevelTwo extends LevelParent {
+import com.example.demo.Boss;
+import com.example.demo.BossHealth;
+import com.example.demo.LevelParent;
+import com.example.demo.LevelView;
+
+public class LevelBoss extends LevelParent {
 
 	private static final String BACKGROUND_IMAGE_NAME = "/com/example/demo/images/background2.jpg";
 	private static final int PLAYER_INITIAL_HEALTH = 5;
 	private final Boss boss;
 	private final BossHealth bossHealth;
 
-	public LevelTwo(double screenHeight, double screenWidth) {
-		super(BACKGROUND_IMAGE_NAME, screenHeight, screenWidth, PLAYER_INITIAL_HEALTH);
+	public LevelBoss(double screenHeight, double screenWidth) {
+		super(BACKGROUND_IMAGE_NAME, screenHeight, screenWidth, PLAYER_INITIAL_HEALTH, "Final LEVEL: Defeat THE BOSS");
 		this.boss = new Boss();
 		this.boss.setLevelView(levelView);
 		this.bossHealth = new BossHealth(850, 25, boss.getHealth());
