@@ -1,4 +1,5 @@
-package com.example.demo;
+
+package com.example.demo.UI;
 
 import javafx.scene.Scene;
 import javafx.scene.control.Button;

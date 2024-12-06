@@ -1,9 +1,9 @@
 package com.example.demo.Levels;
 
-import com.example.demo.ActiveActorDestructible;
-import com.example.demo.EnemyPlane;
-import com.example.demo.LevelParent;
-import com.example.demo.LevelView;
+import com.example.demo.Actor.ActiveActorDestructible;
+import com.example.demo.Plane.EnemyPlane;
+import com.example.demo.LevelController.LevelParent;
+import com.example.demo.LevelController.LevelView;
 
 /**
  * Represents the first level of the game.
@@ -14,7 +14,7 @@ public class LevelOne extends LevelParent {
     /**
      * The name of the background image for Level 1.
      */
-    private static final String BACKGROUND_IMAGE_NAME = "/com/example/demo/images/background1.jpg";
+    private static final String BACKGROUND_IMAGE_NAME = "/com/example/demo/images/Level1BG.png";
 
     /**
      * The custom message to appear on screen when user first enters level.

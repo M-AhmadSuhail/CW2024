@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.demo.Actor;
 import com.example.demo.controller.Main;
 
 public abstract class ActiveActorDestructible extends ActiveActor implements Destructible {

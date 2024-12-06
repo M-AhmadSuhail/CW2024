@@ -1,10 +1,13 @@
-package com.example.demo;
+package com.example.demo.LevelController;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
+
+import com.example.demo.Actor.ActiveActorDestructible;
+import com.example.demo.Plane.FighterPlane;
+import com.example.demo.Plane.UserPlane;
+import com.example.demo.UI.EndGameScreen;
+import com.example.demo.UI.KillDisplay;
 import com.example.demo.controller.Controller;
 import javafx.animation.*;
 import javafx.scene.Group;
@@ -12,6 +15,8 @@ import javafx.scene.Scene;
 import javafx.scene.image.*;
 import javafx.scene.input.*;
 import javafx.util.Duration;
+
+
 
 public abstract class LevelParent extends Observable {
 
@@ -29,6 +34,7 @@ public abstract class LevelParent extends Observable {
 	private final UserPlane user;
 	private final Scene scene;
 	private final ImageView background;
+	private final String MESSAGE_ON_SCREEN;
 
 	private final List<ActiveActorDestructible> friendlyUnits;
 	private final List<ActiveActorDestructible> enemyUnits;
@@ -44,7 +50,7 @@ public abstract class LevelParent extends Observable {
 	protected boolean isPaused = false;
 	private boolean isCooldown = false; // Cooldown state
 
-	public LevelParent(String backgroundImageName, double screenHeight, double screenWidth, int playerInitialHealth) {
+	public LevelParent(String backgroundImageName, double screenHeight, double screenWidth, int playerInitialHealth, String messageOnScreen) {
 		this.root = new Group();
 		this.scene = new Scene(root, screenWidth, screenHeight);
 		this.timeline = new Timeline();
@@ -60,12 +66,12 @@ public abstract class LevelParent extends Observable {
 		this.enemyMaximumYPosition = screenHeight - SCREEN_HEIGHT_ADJUSTMENT;
 		this.levelView = instantiateLevelView();
 		this.currentNumberOfEnemies = 0;
+		this.MESSAGE_ON_SCREEN = messageOnScreen;  // Set the message here
 		this.killDisplay = new KillDisplay(10, 70); // Adjust position as needed
 		root.getChildren().add(killDisplay.getContainer());
 		initializeTimeline();
 		friendlyUnits.add(user);
 	}
-
 	public static void setController(Controller gameController) {
 		controller = gameController;
 	}
@@ -82,6 +88,7 @@ public abstract class LevelParent extends Observable {
 		initializeFriendlyUnits();
 		levelView.showHeartDisplay();
 		levelView.showKillDisplay();
+		levelView.entryMessage(MESSAGE_ON_SCREEN);
 		return scene;
 	}
 
@@ -254,47 +261,45 @@ public abstract class LevelParent extends Observable {
 		timeline.stop();
 		levelView.showWinImage();
 		EndGameScreen endGameMenu = new EndGameScreen("You Win!", screenWidth, screenHeight);
-		EndGameScreenActions(endGameMenu);
-		root.getChildren().add(endGameMenu);
+		attachEndGameMenu(endGameMenu);
 	}
 
 	protected void loseGame() {
 		timeline.stop();
 		levelView.showGameOverImage();
-		EndGameScreen endGameMenu = new EndGameScreen("Game Over", screenWidth, screenHeight);
-		EndGameScreenActions(endGameMenu);
-		root.getChildren().add(endGameMenu);
+		EndGameScreen endGameMenu = new EndGameScreen("Oops! Try Again?", screenWidth, screenHeight);
+		attachEndGameMenu(endGameMenu);
 	}
-
-	private void EndGameScreenActions(EndGameScreen endGameMenu) {
+	private void attachEndGameMenu(EndGameScreen endGameMenu) {
+		root.getChildren().add(endGameMenu); // Add overlay last to ensure it's on top
 		endGameMenu.getExitButton().setOnAction(event -> {
 			System.out.println("Exiting game...");
 			System.exit(0); // Exit the application
 		});
-
 		endGameMenu.getRestartButton().setOnAction(event -> {
 			System.out.println("Restarting game...");
 			restartGame();
 		});
+		endGameMenu.requestFocus(); // Ensure it receives input focus
 	}
-			private void restartGame () {
-				try {
-					controller.goToLevel(Controller.LEVEL_ONE_CLASS_NAME); // Call Controller to restart the game
-				} catch (Exception e) {
-					e.printStackTrace();
-					System.err.println("Failed to restart the game.");
-				}
-			}
+	private void restartGame () {
+		try {
+			controller.goToLevel(Controller.LEVEL_ONE_CLASS_NAME); // Call Controller to restart the game
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.err.println("Failed to restart the game.");
+		}
+	}
 
-			public void pauseGame () {
-				if (!isPaused) {
-					System.out.println("Pausing game...");
-					timeline.stop();
-					if (timeline != null) timeline.pause();
-					// Add more elements to pause
-					isPaused = true;
-				}
-			}
+	public void pauseGame () {
+		if (!isPaused) {
+			System.out.println("Pausing game...");
+			timeline.stop();
+			if (timeline != null) timeline.pause();
+			// Add more elements to pause
+			isPaused = true;
+		}
+	}
 
 	public void resumeGame () {
 		if (isPaused) {
@@ -306,38 +311,37 @@ public abstract class LevelParent extends Observable {
 		}
 	}
 
-			protected UserPlane getUser () {
-				return user;
-			}
+	protected UserPlane getUser () {
+		return user;
+	}
 
-			protected Group getRoot () {
-				return root;
-			}
+	protected Group getRoot () {
+		return root;
+	}
 
-			protected int getCurrentNumberOfEnemies () {
-				return enemyUnits.size();
-			}
+	protected int getCurrentNumberOfEnemies () {
+		return enemyUnits.size();
+	}
 
-			protected void addEnemyUnit (ActiveActorDestructible enemy){
-				enemyUnits.add(enemy);
-				root.getChildren().add(enemy);
-			}
+	protected void addEnemyUnit (ActiveActorDestructible enemy){
+		enemyUnits.add(enemy);
+		root.getChildren().add(enemy);
+	}
 
-			protected double getEnemyMaximumYPosition () {
-				return enemyMaximumYPosition;
-			}
+	protected double getEnemyMaximumYPosition () {
+		return enemyMaximumYPosition;
+	}
 
-			protected double getScreenWidth () {
-				return screenWidth;
-			}
+	protected double getScreenWidth () {
+		return screenWidth;
+	}
 
-			protected boolean userIsDestroyed () {
-				return user.isDestroyed();
-			}
+	protected boolean userIsDestroyed () {
+		return user.isDestroyed();
+	}
 
-			private void updateNumberOfEnemies () {
-				currentNumberOfEnemies = enemyUnits.size();
-			}
+	private void updateNumberOfEnemies () {
+		currentNumberOfEnemies = enemyUnits.size();
+	}
 
-		}
-
+}

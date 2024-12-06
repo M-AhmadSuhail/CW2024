@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.demo.Boss;
 
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;

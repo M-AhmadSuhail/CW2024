@@ -1,9 +1,9 @@
 package com.example.demo.Levels;
 
-import com.example.demo.Boss;
-import com.example.demo.BossHealth;
-import com.example.demo.LevelParent;
-import com.example.demo.LevelView;
+import com.example.demo.Boss.Boss;
+import com.example.demo.Boss.BossHealth;
+import com.example.demo.LevelController.LevelParent;
+import com.example.demo.LevelController.LevelView;
 
 public class LevelBoss extends LevelParent {
 

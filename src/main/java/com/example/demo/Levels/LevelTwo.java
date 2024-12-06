@@ -1,6 +1,10 @@
 package com.example.demo.Levels;
 
-import com.example.demo.*;
+import com.example.demo.Actor.ActiveActorDestructible;
+import com.example.demo.LevelController.LevelParent;
+import com.example.demo.LevelController.LevelView;
+import com.example.demo.Plane.EnemyPlane;
+import com.example.demo.Plane.EnemyPlane2;
 
 public class LevelTwo extends LevelParent {
 
