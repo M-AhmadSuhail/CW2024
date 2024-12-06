@@ -1,5 +1,4 @@
-package com.example.demo;
-import com.example.demo.controller.Main;
+package com.example.demo.Projectiles;
 
 
 public class EnemyProjectile2 extends Projectile {
