@@ -1,6 +1,6 @@
 package com.example.demo.controller;
 
-import com.example.demo.MainMenuScreen;
+import com.example.demo.UI.MainMenuScreen;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
@@ -17,7 +17,7 @@ public class Main extends Application {
 			stage.setTitle(TITLE);
 			stage.setResizable(false);
 			stage.setWidth(SCREEN_WIDTH);
-			stage.setHeight(SCREEN_HEIGHT);
+	 		stage.setHeight(SCREEN_HEIGHT);
 
 			// Initialize and show the main menu
 			MainMenuScreen mainMenuScreen = new MainMenuScreen();

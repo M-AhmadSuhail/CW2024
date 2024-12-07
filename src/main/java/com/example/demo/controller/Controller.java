@@ -5,7 +5,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Observable;
 import java.util.Observer;
 
-import com.example.demo.*;
+import com.example.demo.LevelController.LevelParent;
+import com.example.demo.LevelController.LevelView;
+import com.example.demo.UI.GamePause;
 import javafx.animation.Timeline;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
@@ -14,7 +16,7 @@ import javafx.stage.Stage;
 
 public class Controller implements Observer {
 
-	public static final String LEVEL_ONE_CLASS_NAME = "com.example.demo.LevelOne";
+	public static final String LEVEL_ONE_CLASS_NAME = "com.example.demo.Levels.LevelOne";
 
 	private final Stage stage;
 	private final LevelView levelView;
