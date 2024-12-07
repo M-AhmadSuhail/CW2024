@@ -2,18 +2,21 @@ package com.example.demo.Plane;
 
 import com.example.demo.Actor.ActiveActorDestructible;
 import com.example.demo.Projectiles.EnemyProjectile;
+import com.example.demo.Projectiles.EnemyProjectile2;
 
 import java.util.Random;
 
 public class EnemyPlane2 extends FighterPlane {
 
-    private static final String IMAGE_NAME = "Enemyplan2.png";
-    private static final int IMAGE_HEIGHT = 50;
+    private static final String IMAGE_NAME = "Enemyplane3.png"; // Ensure this image file exists
+    private static final int IMAGE_HEIGHT =100;
+    private static final int HORIZONTAL_VELOCITY = -6;
     private static final double PROJECTILE_X_POSITION_OFFSET = -100.0;
     private static final double PROJECTILE_Y_POSITION_OFFSET = 50.0;
     private static final int INITIAL_HEALTH = 2;
     private static final double BASE_FIRE_RATE = 0.005;  // Base probability of firing
     private static final int MAX_PROJECTILES = 3;
+    private static final double FIRE_RATE = .01;
 
     private int currentProjectileCount = 0;
     private double fireCooldown = 1.0; // Initial cooldown period
@@ -26,24 +29,29 @@ public class EnemyPlane2 extends FighterPlane {
 
     @Override
     public ActiveActorDestructible fireProjectile() {
-        if (fireCooldown <= 0 && Math.random() < BASE_FIRE_RATE && currentProjectileCount < MAX_PROJECTILES) {
+        if (Math.random() < FIRE_RATE) {
             double projectileXPosition = getProjectileXPosition(PROJECTILE_X_POSITION_OFFSET);
-            double projectileYPosition = getProjectileYPosition(PROJECTILE_Y_POSITION_OFFSET);
-            EnemyProjectile projectile = new EnemyProjectile(projectileXPosition, projectileYPosition);
-
-            // Set the destruction callback
-            projectile.setOnDestruction(() -> currentProjectileCount--);
-
-            currentProjectileCount++;
-            fireCooldown = 0.5 + random.nextDouble(); // Reset cooldown to a random time between 0.5 and 1.5 seconds
-            return projectile;
+            double projectileYPostion = getProjectileYPosition(PROJECTILE_Y_POSITION_OFFSET);
+            return new EnemyProjectile2(projectileXPosition, projectileYPostion);
         }
         return null;
     }
 
     @Override
+    public void updatePosition() {
+        moveHorizontally(HORIZONTAL_VELOCITY);
+    }
+    @Override
     public void updateActor() {
         updatePosition();
-        fireCooldown -= 0.016; // Assuming the game updates at 60 FPS (~1/60 seconds per frame)
+        super.updatePosition();
     }
+
+
+//    private void removeFromParent() {
+//        if (getParent() != null) {
+//            getParent().getChildren().remove(this);
+//            System.out.println("EnemyPlane2 successfully removed from parent");
+//        }
+//    }
 }

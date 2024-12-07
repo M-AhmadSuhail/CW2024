@@ -43,21 +43,11 @@ public class LevelThree extends LevelParent {
     protected void spawnEnemyUnits() {
         int currentNumberOfEnemies = getCurrentNumberOfEnemies();
         for (int i = 0; i < TOTAL_ENEMIES - currentNumberOfEnemies; i++) {
-            if (Math.random() < ENEMY_SPAWN_PROBABILITY) {
+            if (Math.random() < ENEMY3_SPAWN_PROBABILITY) { // Use EnemyPlane3 spawn probability
                 double newEnemyInitialYPosition = Math.random() * getEnemyMaximumYPosition();
-                ActiveActorDestructible newEnemy = new EnemyPlane(getScreenWidth(), newEnemyInitialYPosition);
+                ActiveActorDestructible newEnemy = new EnemyPlane3(getScreenWidth(), newEnemyInitialYPosition);
                 addEnemyUnit(newEnemy);
             }
-            if (Math.random() < ENEMY2_SPAWN_PROBABILITY) {
-                double newEnemyInitialYPosition = Math.random() * getEnemyMaximumYPosition();
-                ActiveActorDestructible newEnemy = new EnemyPlane2(getScreenWidth(), newEnemyInitialYPosition);
-                addEnemyUnit(newEnemy);
-            }
-        }
-        if (Math.random() < ENEMY3_SPAWN_PROBABILITY) {
-            double newEnemyInitialYPosition = Math.random() * getEnemyMaximumYPosition();
-            ActiveActorDestructible newEnemy = new EnemyPlane3(getScreenWidth(), newEnemyInitialYPosition);
-            addEnemyUnit(newEnemy);
         }
     }
 

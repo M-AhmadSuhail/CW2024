@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import com.example.demo.Actor.ActiveActorDestructible;
 import com.example.demo.Plane.FighterPlane;
 import com.example.demo.Plane.UserPlane;
+import com.example.demo.Plane.UserPlane2;
 import com.example.demo.UI.EndGameScreen;
 import com.example.demo.UI.KillDisplay;
 import com.example.demo.controller.Controller;
@@ -132,20 +133,22 @@ public abstract class LevelParent extends Observable {
 		background.setFitWidth(screenWidth);
 		background.setPreserveRatio(false);
 		background.setSmooth(true);
+
 		background.setOnKeyPressed(e -> {
 			KeyCode kc = e.getCode();
-			if (kc == KeyCode.UP) user.moveUp();
-			if (kc == KeyCode.DOWN) user.moveDown();
+			if (kc == KeyCode.UP) getUser().moveUp();
+			if (kc == KeyCode.DOWN) getUser().moveDown();
 			if (kc == KeyCode.SPACE) fireProjectile();
-			if (kc == KeyCode.P) togglePause();  // Listen for P key to pause/unpause
+			if (kc == KeyCode.P) togglePause();  // Pause/unpause the game
 		});
+
 		background.setOnKeyReleased(e -> {
 			KeyCode kc = e.getCode();
-			if (kc == KeyCode.UP || kc == KeyCode.DOWN) user.stop();
+			if (kc == KeyCode.UP || kc == KeyCode.DOWN) getUser().stop();
 		});
+
 		root.getChildren().add(background);
 	}
-
 	private void togglePause() {
 		if (isPaused) {
 			resumeGame();
