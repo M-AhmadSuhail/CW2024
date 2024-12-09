@@ -1,0 +1,337 @@
+From d5ae35616890f60808fdd5ef96211f5789beeae7 Mon Sep 17 00:00:00 2001
+From: M-AhmadSuhail <ahmdsuhail022@gmail.com>
+Date: Sat, 7 Dec 2024 15:39:15 +0800
+Subject: [PATCH 2/2] Improved level2 and 3
+
+---
+ .../demo/LevelController/LevelParent.java     | 13 +++---
+ .../com/example/demo/Levels/LevelThree.java   | 14 +-----
+ .../com/example/demo/Levels/LevelTwo.java     | 29 +++++++------
+ .../com/example/demo/Plane/EnemyPlane2.java   | 34 +++++++++------
+ .../com/example/demo/Plane/EnemyPlane3.java   | 43 +++++++++++++------
+ .../demo/Projectiles/EnemyProjectile2.java    | 23 ++++++++--
+ 6 files changed, 96 insertions(+), 60 deletions(-)
+
+diff --git a/src/main/java/com/example/demo/LevelController/LevelParent.java b/src/main/java/com/example/demo/LevelController/LevelParent.java
+index 8130741..27a86dc 100644
+--- a/src/main/java/com/example/demo/LevelController/LevelParent.java
++++ b/src/main/java/com/example/demo/LevelController/LevelParent.java
+@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
+ import com.example.demo.Actor.ActiveActorDestructible;
+ import com.example.demo.Plane.FighterPlane;
+ import com.example.demo.Plane.UserPlane;
++import com.example.demo.Plane.UserPlane2;
+ import com.example.demo.UI.EndGameScreen;
+ import com.example.demo.UI.KillDisplay;
+ import com.example.demo.controller.Controller;
+@@ -132,20 +133,22 @@ public abstract class LevelParent extends Observable {
+ 		background.setFitWidth(screenWidth);
+ 		background.setPreserveRatio(false);
+ 		background.setSmooth(true);
++
+ 		background.setOnKeyPressed(e -> {
+ 			KeyCode kc = e.getCode();
+-			if (kc == KeyCode.UP) user.moveUp();
+-			if (kc == KeyCode.DOWN) user.moveDown();
++			if (kc == KeyCode.UP) getUser().moveUp();
++			if (kc == KeyCode.DOWN) getUser().moveDown();
+ 			if (kc == KeyCode.SPACE) fireProjectile();
+-			if (kc == KeyCode.P) togglePause();  // Listen for P key to pause/unpause
++			if (kc == KeyCode.P) togglePause();  // Pause/unpause the game
+ 		});
++
+ 		background.setOnKeyReleased(e -> {
+ 			KeyCode kc = e.getCode();
+-			if (kc == KeyCode.UP || kc == KeyCode.DOWN) user.stop();
++			if (kc == KeyCode.UP || kc == KeyCode.DOWN) getUser().stop();
+ 		});
++
+ 		root.getChildren().add(background);
+ 	}
+-
+ 	private void togglePause() {
+ 		if (isPaused) {
+ 			resumeGame();
+diff --git a/src/main/java/com/example/demo/Levels/LevelThree.java b/src/main/java/com/example/demo/Levels/LevelThree.java
+index 4777b1d..e9eaad2 100644
+--- a/src/main/java/com/example/demo/Levels/LevelThree.java
++++ b/src/main/java/com/example/demo/Levels/LevelThree.java
+@@ -43,21 +43,11 @@ public class LevelThree extends LevelParent {
+     protected void spawnEnemyUnits() {
+         int currentNumberOfEnemies = getCurrentNumberOfEnemies();
+         for (int i = 0; i < TOTAL_ENEMIES - currentNumberOfEnemies; i++) {
+-            if (Math.random() < ENEMY_SPAWN_PROBABILITY) {
++            if (Math.random() < ENEMY3_SPAWN_PROBABILITY) { // Use EnemyPlane3 spawn probability
+                 double newEnemyInitialYPosition = Math.random() * getEnemyMaximumYPosition();
+-                ActiveActorDestructible newEnemy = new EnemyPlane(getScreenWidth(), newEnemyInitialYPosition);
++                ActiveActorDestructible newEnemy = new EnemyPlane3(getScreenWidth(), newEnemyInitialYPosition);
+                 addEnemyUnit(newEnemy);
+             }
+-            if (Math.random() < ENEMY2_SPAWN_PROBABILITY) {
+-                double newEnemyInitialYPosition = Math.random() * getEnemyMaximumYPosition();
+-                ActiveActorDestructible newEnemy = new EnemyPlane2(getScreenWidth(), newEnemyInitialYPosition);
+-                addEnemyUnit(newEnemy);
+-            }
+-        }
+-        if (Math.random() < ENEMY3_SPAWN_PROBABILITY) {
+-            double newEnemyInitialYPosition = Math.random() * getEnemyMaximumYPosition();
+-            ActiveActorDestructible newEnemy = new EnemyPlane3(getScreenWidth(), newEnemyInitialYPosition);
+-            addEnemyUnit(newEnemy);
+         }
+     }
+ 
+diff --git a/src/main/java/com/example/demo/Levels/LevelTwo.java b/src/main/java/com/example/demo/Levels/LevelTwo.java
+index ca80824..166ba5c 100644
+--- a/src/main/java/com/example/demo/Levels/LevelTwo.java
++++ b/src/main/java/com/example/demo/Levels/LevelTwo.java
+@@ -1,24 +1,22 @@
+ package com.example.demo.Levels;
+ 
+ import com.example.demo.Actor.ActiveActorDestructible;
++import com.example.demo.Plane.EnemyPlane2;
+ import com.example.demo.LevelController.LevelParent;
+ import com.example.demo.LevelController.LevelView;
+-import com.example.demo.Plane.EnemyPlane;
+-import com.example.demo.Plane.EnemyPlane2;
+ 
+ public class LevelTwo extends LevelParent {
+ 
+     private static final String BACKGROUND_IMAGE_NAME = "/com/example/demo/images/Level2BG.jpg";
+     private static final String NEXT_LEVEL = "com.example.demo.Levels.LevelThree";
+-    private static final int TOTAL_ENEMIES = 10; // Increased total enemies
+-    private static final int KILLS_TO_ADVANCE = 15;  // Higher kill requirement, adjust as necessary
+-    private static final double ENEMY_SPAWN_PROBABILITY = 0.45; // Increased spawn probability for regular enemies
+-    private static final double ENEMY2_SPAWN_PROBABILITY = 0.40; // Increased spawn probability for stronger enemies
++
++    private static final int TOTAL_ENEMIES = 7;
++    private static final int KILLS_TO_ADVANCE = 15;
++    private static final double ENEMY_SPAWN_PROBABILITY = 0.25;
+     private static final int PLAYER_INITIAL_HEALTH = 4;
+-    private static final double USER_PLANE_SPEED = 5.0;
+ 
+     public LevelTwo(double screenHeight, double screenWidth) {
+-        super(BACKGROUND_IMAGE_NAME, screenHeight, screenWidth, PLAYER_INITIAL_HEALTH,"LEVEL 2: Defeat 15 enemies");
++        super(BACKGROUND_IMAGE_NAME, screenHeight, screenWidth, PLAYER_INITIAL_HEALTH, "LEVEL TWO: Defeat 15 enemies");
+     }
+ 
+     @Override
+@@ -39,16 +37,19 @@ public class LevelTwo extends LevelParent {
+     @Override
+     protected void spawnEnemyUnits() {
+         int currentNumberOfEnemies = getCurrentNumberOfEnemies();
++
+         for (int i = 0; i < TOTAL_ENEMIES - currentNumberOfEnemies; i++) {
+             if (Math.random() < ENEMY_SPAWN_PROBABILITY) {
+-                double newEnemyInitialYPosition = Math.random() * getEnemyMaximumYPosition();
+-                ActiveActorDestructible newEnemy = new EnemyPlane(getScreenWidth(), newEnemyInitialYPosition);
+-                addEnemyUnit(newEnemy);
+-            }
+-            if (Math.random() < ENEMY2_SPAWN_PROBABILITY) {
+                 double newEnemyInitialYPosition = Math.random() * getEnemyMaximumYPosition();
+                 ActiveActorDestructible newEnemy = new EnemyPlane2(getScreenWidth(), newEnemyInitialYPosition);
+-                addEnemyUnit(newEnemy);
++
++                // Check for duplicates before adding
++                if (!getRoot().getChildren().contains(newEnemy)) {
++                    addEnemyUnit(newEnemy);
++                    System.out.println("Added new enemy at Y position: " + newEnemyInitialYPosition);
++                } else {
++                    System.out.println("Duplicate enemy detected, skipping addition.");
++                }
+             }
+         }
+     }
+diff --git a/src/main/java/com/example/demo/Plane/EnemyPlane2.java b/src/main/java/com/example/demo/Plane/EnemyPlane2.java
+index ba98996..eb22f90 100644
+--- a/src/main/java/com/example/demo/Plane/EnemyPlane2.java
++++ b/src/main/java/com/example/demo/Plane/EnemyPlane2.java
+@@ -2,18 +2,21 @@ package com.example.demo.Plane;
+ 
+ import com.example.demo.Actor.ActiveActorDestructible;
+ import com.example.demo.Projectiles.EnemyProjectile;
++import com.example.demo.Projectiles.EnemyProjectile2;
+ 
+ import java.util.Random;
+ 
+ public class EnemyPlane2 extends FighterPlane {
+ 
+-    private static final String IMAGE_NAME = "Enemyplan2.png";
+-    private static final int IMAGE_HEIGHT = 50;
++    private static final String IMAGE_NAME = "Enemyplane3.png"; // Ensure this image file exists
++    private static final int IMAGE_HEIGHT =100;
++    private static final int HORIZONTAL_VELOCITY = -6;
+     private static final double PROJECTILE_X_POSITION_OFFSET = -100.0;
+     private static final double PROJECTILE_Y_POSITION_OFFSET = 50.0;
+     private static final int INITIAL_HEALTH = 2;
+     private static final double BASE_FIRE_RATE = 0.005;  // Base probability of firing
+     private static final int MAX_PROJECTILES = 3;
++    private static final double FIRE_RATE = .01;
+ 
+     private int currentProjectileCount = 0;
+     private double fireCooldown = 1.0; // Initial cooldown period
+@@ -26,24 +29,29 @@ public class EnemyPlane2 extends FighterPlane {
+ 
+     @Override
+     public ActiveActorDestructible fireProjectile() {
+-        if (fireCooldown <= 0 && Math.random() < BASE_FIRE_RATE && currentProjectileCount < MAX_PROJECTILES) {
++        if (Math.random() < FIRE_RATE) {
+             double projectileXPosition = getProjectileXPosition(PROJECTILE_X_POSITION_OFFSET);
+-            double projectileYPosition = getProjectileYPosition(PROJECTILE_Y_POSITION_OFFSET);
+-            EnemyProjectile projectile = new EnemyProjectile(projectileXPosition, projectileYPosition);
+-
+-            // Set the destruction callback
+-            projectile.setOnDestruction(() -> currentProjectileCount--);
+-
+-            currentProjectileCount++;
+-            fireCooldown = 0.5 + random.nextDouble(); // Reset cooldown to a random time between 0.5 and 1.5 seconds
+-            return projectile;
++            double projectileYPostion = getProjectileYPosition(PROJECTILE_Y_POSITION_OFFSET);
++            return new EnemyProjectile2(projectileXPosition, projectileYPostion);
+         }
+         return null;
+     }
+ 
++    @Override
++    public void updatePosition() {
++        moveHorizontally(HORIZONTAL_VELOCITY);
++    }
+     @Override
+     public void updateActor() {
+         updatePosition();
+-        fireCooldown -= 0.016; // Assuming the game updates at 60 FPS (~1/60 seconds per frame)
++        super.updatePosition();
+     }
++
++
++//    private void removeFromParent() {
++//        if (getParent() != null) {
++//            getParent().getChildren().remove(this);
++//            System.out.println("EnemyPlane2 successfully removed from parent");
++//        }
++//    }
+ }
+diff --git a/src/main/java/com/example/demo/Plane/EnemyPlane3.java b/src/main/java/com/example/demo/Plane/EnemyPlane3.java
+index a43afe3..c81b756 100644
+--- a/src/main/java/com/example/demo/Plane/EnemyPlane3.java
++++ b/src/main/java/com/example/demo/Plane/EnemyPlane3.java
+@@ -1,39 +1,58 @@
+ package com.example.demo.Plane;
+ 
+ import com.example.demo.Actor.ActiveActorDestructible;
++import com.example.demo.Projectiles.EnemyProjectile;
+ import com.example.demo.Projectiles.EnemyProjectile2;
++import com.example.demo.Projectiles.EnemyProjectile3;
++
++import java.util.Random;
+ 
+ public class EnemyPlane3 extends FighterPlane {
+ 
+-    private static final String IMAGE_NAME = "EnemyPlane3.png"; // Unique image for Level Three
+-    private static final int IMAGE_HEIGHT = 60; // Slightly larger for visual differentiation
+-    private static final int HORIZONTAL_VELOCITY = -10; // Even faster for increased challenge
++    private static final String IMAGE_NAME = "Enemyheli.png"; // Ensure this image file exists
++    private static final int IMAGE_HEIGHT =80;
++    private static final int HORIZONTAL_VELOCITY = -6;
+     private static final double PROJECTILE_X_POSITION_OFFSET = -100.0;
+     private static final double PROJECTILE_Y_POSITION_OFFSET = 50.0;
+-    private static final int INITIAL_HEALTH = 3; // Increased health to make them harder to destroy
+-    private static final double FIRE_RATE = 0.05; // Aggressive fire rate
++    private static final int INITIAL_HEALTH = 2;
++    private static final double BASE_FIRE_RATE = 0.005;  // Base probability of firing
++    private static final int MAX_PROJECTILES = 3;
++    private static final double FIRE_RATE = .01;
++
++    private int currentProjectileCount = 0;
++    private double fireCooldown = 1.0; // Initial cooldown period
++    private static final Random random = new Random();
+ 
+     public EnemyPlane3(double initialXPos, double initialYPos) {
+         super(IMAGE_NAME, IMAGE_HEIGHT, initialXPos, initialYPos, INITIAL_HEALTH);
+-    }
+-
+-    @Override
+-    public void updatePosition() {
+-        moveHorizontally(HORIZONTAL_VELOCITY);
++        this.fireCooldown = 0.5 + random.nextDouble(); // Random initial cooldown between 0.5 and 1.5 seconds
+     }
+ 
+     @Override
+     public ActiveActorDestructible fireProjectile() {
+         if (Math.random() < FIRE_RATE) {
+             double projectileXPosition = getProjectileXPosition(PROJECTILE_X_POSITION_OFFSET);
+-            double projectileYPosition = getProjectileYPosition(PROJECTILE_Y_POSITION_OFFSET);
+-            return new EnemyProjectile2(projectileXPosition, projectileYPosition);
++            double projectileYPostion = getProjectileYPosition(PROJECTILE_Y_POSITION_OFFSET);
++            return new EnemyProjectile3(projectileXPosition, projectileYPostion);
+         }
+         return null;
+     }
+ 
++    @Override
++    public void updatePosition() {
++        moveHorizontally(HORIZONTAL_VELOCITY);
++    }
+     @Override
+     public void updateActor() {
+         updatePosition();
++        super.updatePosition();
+     }
++
++
++//    private void removeFromParent() {
++//        if (getParent() != null) {
++//            getParent().getChildren().remove(this);
++//            System.out.println("EnemyPlane2 successfully removed from parent");
++//        }
++//    }
+ }
+diff --git a/src/main/java/com/example/demo/Projectiles/EnemyProjectile2.java b/src/main/java/com/example/demo/Projectiles/EnemyProjectile2.java
+index df69263..ffcf019 100644
+--- a/src/main/java/com/example/demo/Projectiles/EnemyProjectile2.java
++++ b/src/main/java/com/example/demo/Projectiles/EnemyProjectile2.java
+@@ -1,22 +1,37 @@
+ package com.example.demo.Projectiles;
+ 
+-
+ public class EnemyProjectile2 extends Projectile {
+-    private static final String IMAGE_NAME = "Enemyfire1.png";
+-    private static final int IMAGE_HEIGHT = 15;
+-    private static final int HORIZONTAL_VELOCITY = -8;
+ 
++    private Runnable onDestruction;
++
++    private static final String IMAGE_NAME = "Userfire3.png";
++    private static final int IMAGE_HEIGHT = 15;
++    private static final int HORIZONTAL_VELOCITY = -10;
+ 
+     public EnemyProjectile2(double initialXPos, double initialYPos) {
+         super(IMAGE_NAME, IMAGE_HEIGHT, initialXPos, initialYPos);
+     }
++
+     @Override
+     public void updatePosition() {
+         moveHorizontally(HORIZONTAL_VELOCITY);
+         super.updatePosition();
+     }
++    public void setOnDestruction(Runnable onDestruction) {
++        this.onDestruction = onDestruction;
++    }
++    @Override
++    public void destroy() {
++        if (onDestruction != null) {
++            onDestruction.run();
++        }
++        super.destroy();
++    }
++
+     @Override
+     public void updateActor() {
+         updatePosition();
+     }
++
++
+ }
+\ No newline at end of file
+-- 
+2.45.1.windows.1
+

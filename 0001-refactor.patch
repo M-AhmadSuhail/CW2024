@@ -1,0 +1,82 @@
+From df90aef30e0e82b5133e93deb89c79ed87a3c157 Mon Sep 17 00:00:00 2001
+From: M-AhmadSuhail <ahmdsuhail022@gmail.com>
+Date: Sat, 7 Dec 2024 00:43:23 +0800
+Subject: [PATCH 1/2] refactor
+
+---
+ .../demo/{ => Actor}/Destructible.java        |  2 +-
+ .../demo/Actor/LevelChangeListener.java       |  6 ++++
+ .../java/com/example/demo/UI/ShieldImage.java | 33 +++++++++++++++++++
+ 3 files changed, 40 insertions(+), 1 deletion(-)
+ rename src/main/java/com/example/demo/{ => Actor}/Destructible.java (70%)
+ create mode 100644 src/main/java/com/example/demo/Actor/LevelChangeListener.java
+ create mode 100644 src/main/java/com/example/demo/UI/ShieldImage.java
+
+diff --git a/src/main/java/com/example/demo/Destructible.java b/src/main/java/com/example/demo/Actor/Destructible.java
+similarity index 70%
+rename from src/main/java/com/example/demo/Destructible.java
+rename to src/main/java/com/example/demo/Actor/Destructible.java
+index 9a895a3..8899449 100644
+--- a/src/main/java/com/example/demo/Destructible.java
++++ b/src/main/java/com/example/demo/Actor/Destructible.java
+@@ -1,4 +1,4 @@
+-package com.example.demo;
++package com.example.demo.Actor;
+ 
+ public interface Destructible {
+ 
+diff --git a/src/main/java/com/example/demo/Actor/LevelChangeListener.java b/src/main/java/com/example/demo/Actor/LevelChangeListener.java
+new file mode 100644
+index 0000000..2c9075e
+--- /dev/null
++++ b/src/main/java/com/example/demo/Actor/LevelChangeListener.java
+@@ -0,0 +1,6 @@
++package com.example.demo.Actor;
++
++public interface LevelChangeListener {
++    void onLevelComplete();
++    void onLevelFail();
++}
+\ No newline at end of file
+diff --git a/src/main/java/com/example/demo/UI/ShieldImage.java b/src/main/java/com/example/demo/UI/ShieldImage.java
+new file mode 100644
+index 0000000..8588fdc
+--- /dev/null
++++ b/src/main/java/com/example/demo/UI/ShieldImage.java
+@@ -0,0 +1,33 @@
++package com.example.demo.UI;
++
++import javafx.scene.image.Image;
++import javafx.scene.image.ImageView;
++
++public class ShieldImage extends ImageView {
++
++	private static final String IMAGE_NAME = "/com/example/demo/images/shield.png";
++	private static final int SHIELD_SIZE = 50;
++	private static final int X_OFFSET = 8;  // Adjust how far to the right
++	private static final int Y_OFFSET = 15;  // Adjust how far down
++
++	public ShieldImage(double screenWidth, double screenHeight) {
++		// Set the position to the top-right corner, adjusted with offsets
++		this.setLayoutX(screenWidth - SHIELD_SIZE - X_OFFSET);  // Position it to the right
++		this.setLayoutY(Y_OFFSET);  // Position it slightly down from the top
++
++		// Load the shield image
++		this.setImage(new Image(getClass().getResource(IMAGE_NAME).toExternalForm()));
++		this.setVisible(false);  // Initially, the shield is not visible
++		this.setFitHeight(SHIELD_SIZE);
++		this.setFitWidth(SHIELD_SIZE);
++	}
++
++	public void showShield() {
++		this.setVisible(true);
++		toFront();  // Bring the shield image to the front to ensure it's not hidden
++	}
++
++	public void hideShield() {
++		this.setVisible(false);
++	}
++}
+-- 
+2.45.1.windows.1
+
