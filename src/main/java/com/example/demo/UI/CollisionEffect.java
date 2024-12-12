@@ -32,7 +32,7 @@ public class CollisionEffect {
      * @param y the Y-coordinate for the center of the explosion
      */
     public void displayEffect(double x, double y) {
-        System.out.println("Displaying explosion effect at: (" + x + ", " + y + ")");
+        System.out.println("Displaying explosion effect at: (" + x + ", " + y + ")");//Debugging
 
         // Load the explosion image from resources
         Image explosionImage = new Image(getClass().getResource("/com/example/demo/images/explosion2.png").toExternalForm());
