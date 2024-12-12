@@ -5,6 +5,8 @@ import com.example.demo.Plane.EnemyPlane;
 import com.example.demo.LevelController.LevelParent;
 import com.example.demo.LevelController.LevelView;
 
+import java.net.URL;
+
 /**
  * Represents the first level of the game.
  * The objective of this level is to defeat 10 enemies to advance to the next level.
@@ -14,7 +16,7 @@ public class LevelOne extends LevelParent {
     /**
      * The name of the background image for Level 1.
      */
-    private static final String BACKGROUND_IMAGE_NAME = "/com/example/demo/images/Level1BG.png";
+    private static final String BACKGROUND_IMAGE_NAME = "/com/example/demo/images/Level1BG1.jpg";
 
     /**
      * The custom message to appear on screen when user first enters level.
@@ -58,6 +60,7 @@ public class LevelOne extends LevelParent {
      */
     public LevelOne(double screenHeight, double screenWidth) {
         super(BACKGROUND_IMAGE_NAME, screenHeight, screenWidth, PLAYER_INITIAL_HEALTH, "LEVEL 1: Defeat 10 enemies");
+        this.currentLevelClassName = this.getClass().getName();
     }
 
     /**
@@ -73,6 +76,7 @@ public class LevelOne extends LevelParent {
         else if (userHasReachedKillTarget()) {
             goToNextLevel(NEXT_LEVEL);
             System.out.println("Going to next level");
+
         }
     }
 
@@ -110,6 +114,8 @@ public class LevelOne extends LevelParent {
      */
     @Override
     protected LevelView instantiateLevelView() {
+
+        setCollisionSound("src/main/resources/lvlb.mp3");
         return new LevelView(getRoot(), PLAYER_INITIAL_HEALTH, 1);
     }
 
@@ -125,4 +131,12 @@ public class LevelOne extends LevelParent {
     private boolean userHasReachedKillTarget() {
         return getUser().getNumberOfHits() >= KILLS_TO_ADVANCE;
     }
+
+
+    @Override
+    protected void initializeLevel() {
+   //  setCollisionSound("src/main/resources/sounds/default.mp3");
+        // Other initialization logic
+    }
+
 }

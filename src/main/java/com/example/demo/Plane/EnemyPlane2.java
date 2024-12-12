@@ -6,52 +6,81 @@ import com.example.demo.Projectiles.EnemyProjectile2;
 
 import java.util.Random;
 
+/**
+ * Represents a more advanced enemy plane in the game, which moves horizontally,
+ * fires projectiles with a certain rate, and has enhanced behavior compared to the basic enemy plane.
+ * Extends the FighterPlane class.
+ */
 public class EnemyPlane2 extends FighterPlane {
 
-    private static final String IMAGE_NAME = "Enemyplane3.png"; // Ensure this image file exists
-    private static final int IMAGE_HEIGHT =100;
-    private static final int HORIZONTAL_VELOCITY = -6;
-    private static final double PROJECTILE_X_POSITION_OFFSET = -100.0;
-    private static final double PROJECTILE_Y_POSITION_OFFSET = 50.0;
-    private static final int INITIAL_HEALTH = 2;
-    private static final double BASE_FIRE_RATE = 0.005;  // Base probability of firing
-    private static final int MAX_PROJECTILES = 3;
-    private static final double FIRE_RATE = .01;
+    // Constants defining the behavior and properties of the enemy plane
+    private static final String IMAGE_NAME = "Enemyplane3.png"; // Image of the enemy plane
+    private static final int IMAGE_HEIGHT = 100; // Height of the enemy plane
+    private static final int HORIZONTAL_VELOCITY = -6; // Speed at which the enemy plane moves horizontally (leftward)
+    private static final double PROJECTILE_X_POSITION_OFFSET = -100.0; // X offset for projectile spawn
+    private static final double PROJECTILE_Y_POSITION_OFFSET = 50.0; // Y offset for projectile spawn
+    private static final int INITIAL_HEALTH = 2; // Initial health of the enemy plane
+    private static final double BASE_FIRE_RATE = 0.005; // Base probability of firing a projectile
+    private static final int MAX_PROJECTILES = 3; // Maximum projectiles the enemy plane can fire
+    private static final double FIRE_RATE = 0.01; // Fire rate probability for projectiles
 
-    private int currentProjectileCount = 0;
-    private double fireCooldown = 1.0; // Initial cooldown period
-    private static final Random random = new Random();
+    private int currentProjectileCount = 0; // Tracks the current number of projectiles fired
+    private double fireCooldown = 1.0; // Initial cooldown period before the next shot
+    private static final Random random = new Random(); // Random object for generating random values
 
+    /**
+     * Constructor for the EnemyPlane2 object.
+     * Initializes the plane with a specified initial position, health, and random fire cooldown.
+     *
+     * @param initialXPos the initial X position of the enemy plane
+     * @param initialYPos the initial Y position of the enemy plane
+     */
     public EnemyPlane2(double initialXPos, double initialYPos) {
+        // Calls the parent class constructor to initialize the enemy plane with the specified image and health
         super(IMAGE_NAME, IMAGE_HEIGHT, initialXPos, initialYPos, INITIAL_HEALTH);
-        this.fireCooldown = 0.5 + random.nextDouble(); // Random initial cooldown between 0.5 and 1.5 seconds
+        // Set a random initial cooldown between 0.5 and 1.5 seconds
+        this.fireCooldown = 0.5 + random.nextDouble();
     }
 
+    /**
+     * Fires a projectile from the enemy plane.
+     * The projectile is fired based on the configured fire rate probability.
+     *
+     * @return a new EnemyProjectile2 if fired, or null if no projectile is fired
+     */
     @Override
     public ActiveActorDestructible fireProjectile() {
+        // Check if the plane should fire a projectile based on the fire rate
         if (Math.random() < FIRE_RATE) {
+            // Calculate the spawn position for the projectile
             double projectileXPosition = getProjectileXPosition(PROJECTILE_X_POSITION_OFFSET);
-            double projectileYPostion = getProjectileYPosition(PROJECTILE_Y_POSITION_OFFSET);
-            return new EnemyProjectile2(projectileXPosition, projectileYPostion);
+            double projectileYPosition = getProjectileYPosition(PROJECTILE_Y_POSITION_OFFSET);
+            // Return a new EnemyProjectile2 instance at the calculated position
+            return new EnemyProjectile2(projectileXPosition, projectileYPosition);
         }
-        return null;
+        return null; // Return null if no projectile is fired
     }
 
+    /**
+     * Updates the position of the enemy plane by moving it horizontally.
+     * The plane moves to the left at a constant speed.
+     */
     @Override
     public void updatePosition() {
+        // Move the plane horizontally at the defined speed
         moveHorizontally(HORIZONTAL_VELOCITY);
     }
+
+    /**
+     * Updates the state of the enemy plane, including its position and potential projectile firing.
+     * Calls the parent class' updatePosition method to ensure all parent behaviors are applied.
+     */
     @Override
     public void updateActor() {
+        // Update the position of the enemy plane
         updatePosition();
+        // Call the parent class' updatePosition method (if any additional behavior exists)
         super.updatePosition();
     }
 
-
-//    private void removeFromParent() {
-//        if (getParent() != null) {
-//            getParent().getChildren().remove(this);
-//            System.out.println("EnemyPlane2 successfully removed from parent");
-//        }
-//    }
 }

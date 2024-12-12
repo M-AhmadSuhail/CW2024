@@ -10,36 +10,54 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.geometry.Pos;
 
-public class    EndGameScreen extends VBox {
+/**
+ * The EndGameScreen class represents a UI component for displaying the end game screen.
+ * It includes a message, a restart button, and an exit button, all styled for a polished user experience.
+ */
+public class EndGameScreen extends VBox {
+
+    // Buttons for user actions: restart the game or exit
     private final Button endGameButton;
     private final Button restartButton;
 
+    // Constants defining button dimensions
     private static final double BUTTON_WIDTH = 200;
     private static final double BUTTON_HEIGHT = 60;
 
+    /**
+     * Constructor to create an EndGameScreen with a custom message and screen dimensions.
+     *
+     * @param message      the message to display, typically indicating the game outcome
+     * @param screenWidth  the width of the screen
+     * @param screenHeight the height of the screen
+     */
     public EndGameScreen(String message, double screenWidth, double screenHeight) {
-        // Full-screen transparent overlay
+        // Set the size, alignment, and background style of the overlay
         this.setPrefSize(screenWidth, screenHeight);
         this.setAlignment(Pos.CENTER);
-        this.setSpacing(30);
+        this.setSpacing(30); // Space between components
         this.setStyle("-fx-background-color: rgba(0, 0, 0, 0.8); -fx-padding: 20px;");
 
-        // Text with bigger, bold, and italic font + drop shadow
+        // Create and style the message text
         Text endGameText = new Text(message);
         endGameText.setFont(Font.font("Arial", FontWeight.BOLD, FontPosture.ITALIC, 70));
         endGameText.setFill(Color.web("#FFFAFA"));
         endGameText.setEffect(new DropShadow(15, Color.BLACK));
 
-        // Styled Restart Button
+        // Create styled buttons for Restart and Exit
         restartButton = createStyledButton("Restart");
-
-        // Styled Exit Button
         endGameButton = createStyledButton("Exit");
 
-        // Add components
+        // Add components to the layout
         this.getChildren().addAll(endGameText, restartButton, endGameButton);
     }
 
+    /**
+     * Helper method to create a styled button with hover effects.
+     *
+     * @param text the label of the button
+     * @return a styled Button instance
+     */
     private Button createStyledButton(String text) {
         Button button = new Button(text);
         button.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
@@ -56,7 +74,7 @@ public class    EndGameScreen extends VBox {
             -fx-border-width: 3px;
         """);
 
-        // Button hover effect
+        // Define hover effect styles
         button.setOnMouseEntered(e -> button.setStyle("""
             -fx-font-family: 'Arial';
             -fx-font-size: 26px;
@@ -86,10 +104,20 @@ public class    EndGameScreen extends VBox {
         return button;
     }
 
+    /**
+     * Retrieves the Exit button.
+     *
+     * @return the Button instance for exiting the game
+     */
     public Button getExitButton() {
         return endGameButton;
     }
 
+    /**
+     * Retrieves the Restart button.
+     *
+     * @return the Button instance for restarting the game
+     */
     public Button getRestartButton() {
         return restartButton;
     }

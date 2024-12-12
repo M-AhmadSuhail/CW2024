@@ -1,104 +1,164 @@
-
 package com.example.demo.UI;
 
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.scene.input.KeyCode;
-import javafx.animation.Timeline; // Import Timeline
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.effect.DropShadow;
+import javafx.geometry.Pos;
+import javafx.scene.layout.Region;
 
+/**
+ * The GamePause class represents the pause menu in the game,
+ * providing options to resume, restart, or exit the game.
+ */
 public class GamePause {
 
-    private final Stage pauseStage;
+    // Constants for screen dimensions
+    private static final int SCREEN_WIDTH = 1300;
+    private static final int SCREEN_HEIGHT = 750;
+
+    // Runnable actions for pause menu buttons
     private final Runnable onResume;
+    private final Runnable onRestart;
     private final Runnable onExit;
-    private final Runnable onSettings;
-    private final Timeline gameLoop; // Reference to the game loop
 
-    public GamePause(Stage primaryStage, Runnable onResume, Runnable onExit, Runnable onSettings, Timeline gameLoop) {
+    // Stage for the pause menu
+    private Stage pauseStage;
+
+    /**
+     * Constructor to initialize the GamePause menu with action handlers.
+     *
+     * @param onResume the action to perform when resuming the game
+     * @param onRestart the action to perform when restarting the level
+     * @param onExit the action to perform when exiting the game
+     */
+    public GamePause(Runnable onResume, Runnable onRestart, Runnable onExit) {
         this.onResume = onResume;
+        this.onRestart = onRestart;
         this.onExit = onExit;
-        this.onSettings = onSettings;
-        this.gameLoop = gameLoop; // Initialize the game loop
-
-        // Create the pause stage
-        pauseStage = new Stage();
-        pauseStage.initOwner(primaryStage);
-        pauseStage.initModality(Modality.APPLICATION_MODAL);
-        pauseStage.initStyle(StageStyle.UNDECORATED);
-        pauseStage.setResizable(false);
-
-        // Build the pause menu UI
-        VBox menu = new VBox(20);
-        menu.setStyle("-fx-background-color: rgba(0, 0, 0, 0.8); -fx-padding: 50;");
-        menu.setPrefSize(300, 400);
-
-        Button playButton = new Button("Play");
-        playButton.setFont(new Font("Press Start 2P", 20));
-        playButton.setTextFill(Color.LIME);
-        playButton.setOnAction(event -> resumeGame());
-
-        Button settingsButton = new Button("Settings");
-        settingsButton.setFont(new Font("Press Start 2P", 20));
-        settingsButton.setTextFill(Color.ORANGE);
-        settingsButton.setOnAction(event -> openSettings());
-
-        Button exitButton = new Button("Exit");
-        exitButton.setFont(new Font("Press Start 2P", 20));
-        exitButton.setTextFill(Color.RED);
-        exitButton.setOnAction(event -> exitGame());
-
-        menu.getChildren().addAll(playButton, settingsButton, exitButton);
-        menu.setStyle("-fx-alignment: center;");
-
-        Scene pauseScene = new Scene(menu);
-        pauseStage.setScene(pauseScene);
     }
 
+    /**
+     * Displays the pause menu.
+     */
     public void show() {
-        if (gameLoop != null) {
-            gameLoop.pause(); // Pause the game loop
-        }
-        pauseStage.show();
+        showPausePopup();
+    }
 
-        // Add key press handler to the scene for 'P'
-        pauseStage.getScene().setOnKeyPressed(event -> {
-            if (event.getCode() == KeyCode.P) {
-                resumeGame();
-            }
+    /**
+     * Creates and displays the pause menu popup with buttons for Resume, Restart, and Exit.
+     */
+    public void showPausePopup() {
+        Platform.runLater(() -> {
+            // Create a new Stage for the pause menu
+            pauseStage = new Stage();
+            pauseStage.initModality(Modality.APPLICATION_MODAL);
+            pauseStage.initStyle(StageStyle.TRANSPARENT);  // Transparent stage background
+            pauseStage.setResizable(false);
+
+            // Create buttons
+            Button resumeButton = createStyledButton("Resume Game", Color.GREEN);
+            resumeButton.setOnAction(event -> resumeGame());
+
+            Button restartButton = createStyledButton("Restart Level", Color.ORANGE);
+            restartButton.setOnAction(event -> restartLevel());
+
+            Button exitButton = createStyledButton("Exit Game", Color.RED);
+            exitButton.setOnAction(event -> exitGame());
+
+            // VBox layout for buttons
+            VBox layout = new VBox(20, resumeButton, restartButton, exitButton);
+            layout.setAlignment(Pos.CENTER);
+            layout.setStyle("-fx-background-color: rgba(0, 0, 0, 0.7); -fx-padding: 30; -fx-border-radius: 15;");
+
+            // Spacer for positioning
+            Region spacer = new Region();
+            VBox.setVgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
+            layout.getChildren().add(spacer);
+
+            // Positioning layout on screen
+            layout.setTranslateX((SCREEN_WIDTH - layout.getWidth()) / 2 - 650);
+            layout.setTranslateY((SCREEN_HEIGHT - layout.getHeight()) / 2 - 225);
+
+            // Create scene with transparent background
+            Scene scene = new Scene(layout);
+            scene.setFill(Color.TRANSPARENT);
+            pauseStage.setScene(scene);
+
+            // Display the pause menu
+            pauseStage.show();
         });
     }
 
-    public void hide() {
-        pauseStage.close();
-        if (gameLoop != null) {
-            gameLoop.play(); // Resume the game loop
-        }
+    /**
+     * Creates a styled button with a hover effect and drop shadow.
+     *
+     * @param text the button text
+     * @param textColor the color of the text
+     * @return a styled Button instance
+     */
+    private Button createStyledButton(String text, Color textColor) {
+        Button button = new Button(text);
+        button.setFont(new Font("Arial", 20));
+        button.setTextFill(textColor);
+        button.setStyle("-fx-background-color: rgba(0, 0, 0, 0.5); -fx-border-radius: 10; -fx-padding: 10;");
+
+        // Hover effect
+        button.setOnMouseEntered(e -> button.setStyle("-fx-background-color: rgba(255, 255, 255, 0.2); -fx-border-radius: 10; -fx-padding: 10;"));
+        button.setOnMouseExited(e -> button.setStyle("-fx-background-color: rgba(0, 0, 0, 0.5); -fx-border-radius: 10; -fx-padding: 10;"));
+
+        // Drop shadow
+        DropShadow dropShadow = new DropShadow();
+        dropShadow.setOffsetX(2.0);
+        dropShadow.setOffsetY(2.0);
+        dropShadow.setColor(Color.GRAY);
+        button.setEffect(dropShadow);
+
+        return button;
     }
 
+    /**
+     * Handles the action for resuming the game and closes the pause menu.
+     */
     private void resumeGame() {
-        hide();
         if (onResume != null) {
             onResume.run();
         }
+        closePauseMenu();
     }
 
+    /**
+     * Handles the action for restarting the level and closes the pause menu.
+     */
+    private void restartLevel() {
+        if (onRestart != null) {
+            onRestart.run();
+        }
+        closePauseMenu();
+    }
+
+    /**
+     * Handles the action for exiting the game and closes the pause menu.
+     */
     private void exitGame() {
-        hide();
         if (onExit != null) {
             onExit.run();
         }
+        closePauseMenu();
     }
 
-    private void openSettings() {
-        hide();
-        if (onSettings != null) {
-            onSettings.run();
+    /**
+     * Closes the pause menu popup.
+     */
+    private void closePauseMenu() {
+        if (pauseStage != null) {
+            pauseStage.close();
         }
     }
 }

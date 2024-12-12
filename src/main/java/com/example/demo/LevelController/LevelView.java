@@ -4,6 +4,7 @@ import com.example.demo.UI.*;
 import com.example.demo.controller.Main;
 import javafx.animation.FadeTransition;
 import com.example.demo.controller.Controller;
+import javafx.animation.SequentialTransition;
 import javafx.animation.Timeline;
 import javafx.beans.binding.Bindings;
 import javafx.scene.Group;
@@ -197,5 +198,5 @@ public class LevelView {
         });
         fadeIn.play();
     }
-}
 
+}
