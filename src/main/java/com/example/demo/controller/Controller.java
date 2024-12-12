@@ -26,7 +26,7 @@ import javax.swing.*;
  */
 public class Controller implements Observer {
 
-	public static final String LEVEL_ONE_CLASS_NAME = "com.example.demo.Levels.LevelOne";
+	public static final String LEVEL_ONE_CLASS_NAME = "com.example.demo.Levels.LevelBoss";
 
 	private final Stage stage;
 	private final LevelView levelView;
@@ -92,7 +92,7 @@ public class Controller implements Observer {
 		myLevel.addObserver(this);
 		Scene scene = myLevel.initializeScene();
 		stage.setScene(scene);
-		myLevel.startGame();
+		myLevel.initializeLevel();
 	}
 
 	/**
