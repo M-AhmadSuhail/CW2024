@@ -7,8 +7,9 @@ import java.util.stream.Collectors;
 import com.example.demo.UI.*;
 import com.example.demo.controller.Main;
 import javafx.application.Platform;
+import javafx.scene.Parent;
 import javafx.scene.control.Label;
-
+import com.example.demo.LevelController.LevelOverlay;
 import com.example.demo.Actor.ActiveActorDestructible;
 import com.example.demo.MusicController.Music;
 import com.example.demo.MusicController.Bgm;
@@ -56,8 +57,13 @@ public abstract class LevelParent extends Observable {
 	private int currentNumberOfEnemies;
 	protected String currentLevelClassName;
 	protected final LevelView levelView;
+	protected final LevelOverlay levelOverlay;
 	private final KillDisplay killDisplay;
+
 	protected abstract LevelView instantiateLevelView();
+
+	private Scene currentLevelScene;
+
 
 	// Pause state
 	protected boolean isPaused = false;
@@ -74,10 +80,10 @@ public abstract class LevelParent extends Observable {
 	 * Constructs a new LevelParent instance.
 	 *
 	 * @param backgroundImageName the background image for the level.
-	 * @param screenHeight the height of the screen.
-	 * @param screenWidth the width of the screen.
+	 * @param screenHeight        the height of the screen.
+	 * @param screenWidth         the width of the screen.
 	 * @param playerInitialHealth the initial health of the player.
-	 * @param messageOnScreen the message displayed on the screen.
+	 * @param messageOnScreen     the message displayed on the screen.
 	 */
 	public LevelParent(String backgroundImageName, double screenHeight, double screenWidth, int playerInitialHealth, String messageOnScreen) {
 		this.root = new Group();
@@ -107,6 +113,7 @@ public abstract class LevelParent extends Observable {
 		userShield = new UserShield(screenWidth, screenHeight);
 		root.getChildren().add(userShield);
 		collisionEffect = new CollisionEffect(root);
+		this.levelOverlay = new LevelOverlay(root, this::startGame);
 
 		// Initialize the GamePause instance
 		gamePause = new GamePause(this::resumeGame, this::restartGame, this::exitGame);
@@ -136,6 +143,15 @@ public abstract class LevelParent extends Observable {
 	 */
 	protected abstract void spawnEnemyUnits();
 
+	public Scene getCurrentLevelScene() {
+		return currentLevelScene;
+	}
+
+	// Setter or any other methods to manage scenes as needed
+	public void setCurrentLevelScene(Scene scene) {
+		this.currentLevelScene = scene;
+	}
+
 	/**
 	 * Initializes the scene for the level by setting up background, friendly units, and UI elements.
 	 *
@@ -148,13 +164,18 @@ public abstract class LevelParent extends Observable {
 		initializeFriendlyUnits();
 		levelView.showHeartDisplay();
 		levelView.showKillDisplay();
-		levelView.entryMessage(MESSAGE_ON_SCREEN);
+//		levelView.entryMessage(MESSAGE_ON_SCREEN);
 		if (bgm == null) {
 			bgm = new Bgm(0.5);  // Initialize bgm with volume
 		}
 		bgm.playBGM("background.mp3");
 		return scene;
 
+	}
+
+	public Parent getCurrentLevelRoot() {
+		// Return the root node of the current level scene
+		return currentLevelScene != null ? currentLevelScene.getRoot() : null;
 	}
 
 	/**
@@ -466,6 +487,7 @@ public abstract class LevelParent extends Observable {
 		}
 		return collisionOccurred;
 	}
+
 	/**
 	 * Handles the enemy penetration scenario where the enemy crosses the defense boundaries.
 	 * If an enemy penetrates, it causes damage to the user and the enemy is destroyed.
@@ -487,7 +509,7 @@ public abstract class LevelParent extends Observable {
 	private void updateLevelView(int enemiesEliminated) {
 		levelView.removeHearts(user.getHealth()); // Update health display
 		levelView.updateKills(user.getNumberOfHits()); // Update total kills in the view
-		System.out.println("Level view updated: " + enemiesEliminated + " enemies eliminated.");
+//		System.out.println("Level view updated: " + enemiesEliminated + " enemies eliminated.");
 	}
 
 	/**
@@ -677,7 +699,7 @@ public abstract class LevelParent extends Observable {
 	/**
 	 * Binds the feature keys (such as activating power-ups) to the user plane and scene.
 	 *
-	 * @param scene The scene to which the keys are bound.
+	 * @param scene     The scene to which the keys are bound.
 	 * @param userPlane The user plane object that will react to the key events.
 	 */
 	public void bindFeatureKeys(Scene scene, UserPlane userPlane) {
@@ -755,7 +777,7 @@ public abstract class LevelParent extends Observable {
 	/**
 	 * Starts the timer for the shield power-up, which lasts for 30 seconds.
 	 *
-	 * @param userPlane The user plane object to which the shield power-up is applied.
+	 * @param userPlane  The user plane object to which the shield power-up is applied.
 	 * @param timerLabel The label that displays the remaining time for the shield power-up.
 	 */
 	private void startShieldTimer(UserPlane userPlane, Label timerLabel) {
@@ -785,7 +807,7 @@ public abstract class LevelParent extends Observable {
 	/**
 	 * Starts the timer for the one-hit-kill power-up, which lasts for 10 seconds.
 	 *
-	 * @param userPlane The user plane object to which the one-hit-kill power-up is applied.
+	 * @param userPlane  The user plane object to which the one-hit-kill power-up is applied.
 	 * @param timerLabel The label that displays the remaining time for the one-hit-kill power-up.
 	 */
 	private void startOneHitKillTimer(UserPlane userPlane, Label timerLabel) {
@@ -873,10 +895,21 @@ public abstract class LevelParent extends Observable {
 		this.collisionSoundFile = soundFilePath;
 	}
 
+	public Scene getScene() {
+		return this.scene;
+	}
+
 	/**
 	 * Initializes the level. This method should be overridden by subclasses to set up the specific level.
 	 */
-	protected abstract void initializeLevel();{
+
+	public void initializeLevel(String levelName, int killsRequired,String additionalInfo) {
+		System.out.println("Initializing level: " + levelName); // Debug log to verify the call
+
+		// Show the level overlay with the level name and kills required
+		levelOverlay.showLevelOverlay(levelName, killsRequired, additionalInfo);
 	}
+
+	public abstract void initializeLevel();
 }
 

@@ -5,7 +5,6 @@ import com.example.demo.LevelController.LevelView;
 import com.example.demo.Plane.EnemyPlane2;
 import com.example.demo.LevelController.LevelParent;
 import com.example.demo.Plane.UserPlane;
-import javafx.animation.PauseTransition;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
@@ -14,9 +13,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.util.Duration;
-
-import static com.example.demo.controller.Main.getScreenHeight;
 
 /**
  * LevelTwo represents the second level of the game. The player needs to defeat a set number of enemies
@@ -47,6 +43,7 @@ public class LevelTwo extends LevelParent {
                         "1 for Shield\n" +
                         "2 for Fire Boost");
         this.currentLevelClassName = this.getClass().getName(); // Set the current level class name
+//        initializeLevel();
     }
 
     /**
@@ -133,49 +130,44 @@ public class LevelTwo extends LevelParent {
      * Initialize the level. This method introduces a delay to show power-up instructions before starting the game.
      */
     @Override
-    protected void initializeLevel() {
-        // Show the power-up instructions before starting the level
-        showPowerUpMessage();
-
-        // Delay the actual start of the level for 5 seconds to show instructions
-        PauseTransition delay = new PauseTransition(Duration.seconds(5));
-        delay.setOnFinished(event -> {
-            // Now start the level after instructions
-            initializeFriendlyUnits();
-            spawnEnemyUnits();
-        });
-        delay.play();
+    public void initializeLevel() {
+        // Pass the level name dynamically to the superclass method
+        super.initializeLevel("2", 15,
+                "       Power-Ups:\n\n" +
+                        "      Press  1  For sheild Activation\n" +
+                        "      Press  2  For Fire Boost. ");
     }
+
 
     /**
      * Display the power-up instructions in a new stage.
      */
-    private void showPowerUpMessage() {
-        Stage powerUpStage = new Stage();
-        powerUpStage.initModality(Modality.APPLICATION_MODAL);
-        powerUpStage.setTitle("Power-Up Instructions");
-
-        // Display the power-up instructions
-        Text powerUpText = new Text("Power-ups are available in this level!\n" +
-                "Press '1' for Shield\n" +
-                "Press '2' for Fire Boost");
-        powerUpText.setFont(Font.font("Press Start 2P", 14));
-        powerUpText.setStyle("-fx-fill: yellow;");
-
-        VBox layout = new VBox(20, powerUpText);
-        layout.setAlignment(Pos.CENTER);
-        layout.setStyle("-fx-background-color: black; -fx-padding: 20;");
-
-        Scene powerUpScene = new Scene(layout, 600, 400);
-
-        // Add ESC key handler to close the window
-        powerUpScene.setOnKeyPressed(event -> {
-            if (event.getCode() == KeyCode.ESCAPE) {
-                powerUpStage.close();
-            }
-        });
-
-        powerUpStage.setScene(powerUpScene);
-        powerUpStage.showAndWait();
-    }
+//    private void showPowerUpMessage() {
+//        Stage powerUpStage = new Stage();
+//        powerUpStage.initModality(Modality.APPLICATION_MODAL);
+//        powerUpStage.setTitle("Power-Up Instructions");
+//
+//        // Display the power-up instructions
+//        Text powerUpText = new Text("Power-ups are available in this level!\n" +
+//                "Press '1' for Shield\n" +
+//                "Press '2' for Fire Boost");
+//        powerUpText.setFont(Font.font("Press Start 2P", 14));
+//        powerUpText.setStyle("-fx-fill: yellow;");
+//
+//        VBox layout = new VBox(20, powerUpText);
+//        layout.setAlignment(Pos.CENTER);
+//        layout.setStyle("-fx-background-color: black; -fx-padding: 20;");
+//
+//        Scene powerUpScene = new Scene(layout, 600, 400);
+//
+//        // Add ESC key handler to close the window
+//        powerUpScene.setOnKeyPressed(event -> {
+//            if (event.getCode() == KeyCode.ESCAPE) {
+//                powerUpStage.close();
+//            }
+//        });
+//
+//        powerUpStage.setScene(powerUpScene);
+//        powerUpStage.showAndWait();
+//    }
 }

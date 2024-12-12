@@ -36,6 +36,7 @@ public class LevelThree extends LevelParent {
         // Initialize the parent class with relevant parameters
         super(BACKGROUND_IMAGE_NAME, screenHeight, screenWidth, PLAYER_INITIAL_HEALTH, "LEVEL 3: Defeat 20 enemies");
         this.currentLevelClassName = this.getClass().getName(); // Set the current level class name
+//        initializeLevel();
     }
 
     /**
@@ -116,7 +117,11 @@ public class LevelThree extends LevelParent {
      * when the level starts. Currently empty for Level 3.
      */
     @Override
-    protected void initializeLevel() {
-        // Placeholder for future initialization logic if needed.
+    public void initializeLevel() {
+        // Call the parent method with the current level name
+        super.initializeLevel("3", 20,
+                "       Power-Ups:\n\n" +
+                        "      Press  1  For sheild Activation\n" +
+                        "      Press  2  For Fire Boost. ");
     }
 }

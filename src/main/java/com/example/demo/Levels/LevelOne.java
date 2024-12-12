@@ -61,6 +61,7 @@ public class LevelOne extends LevelParent {
     public LevelOne(double screenHeight, double screenWidth) {
         super(BACKGROUND_IMAGE_NAME, screenHeight, screenWidth, PLAYER_INITIAL_HEALTH, "LEVEL 1: Defeat 10 enemies");
         this.currentLevelClassName = this.getClass().getName();
+//        initializeLevel();
     }
 
     /**
@@ -95,14 +96,14 @@ public class LevelOne extends LevelParent {
     @Override
     protected void spawnEnemyUnits() {
         int currentNumberOfEnemies = getCurrentNumberOfEnemies();
-        System.out.println("Current enemies: " + currentNumberOfEnemies + "/" + TOTAL_ENEMIES);
+//        System.out.println("Current enemies: " + currentNumberOfEnemies + "/" + TOTAL_ENEMIES);
 
         for (int i = 0; i < TOTAL_ENEMIES - currentNumberOfEnemies; i++) {
             if (Math.random() < ENEMY_SPAWN_PROBABILITY) {
                 double newEnemyInitialYPosition = Math.random() * getEnemyMaximumYPosition();
                 ActiveActorDestructible newEnemy = new EnemyPlane(getScreenWidth(), newEnemyInitialYPosition);
                 addEnemyUnit(newEnemy);
-                System.out.println("Spawned new enemy at Y position: " + newEnemyInitialYPosition);
+//                System.out.println("Spawned new enemy at Y position: " + newEnemyInitialYPosition);
             }
         }
     }
@@ -134,9 +135,9 @@ public class LevelOne extends LevelParent {
 
 
     @Override
-    protected void initializeLevel() {
-   //  setCollisionSound("src/main/resources/sounds/default.mp3");
-        // Other initialization logic
+    public void initializeLevel() {
+        System.out.println("Level initialization screen called");
+        // Call the parent method with the current level name, kills required, and a custom message
+        super.initializeLevel("Level 1", 10, "Welcome to the first challenge!");
     }
-
 }
