@@ -100,7 +100,7 @@ public class Boss extends FighterPlane {
 	 */
 	@Override
 	public void takeDamage() {
-		reduceHealth(1); // Reduce health by 1 when damage is taken
+		super.takeDamage(); // Reduce health by 1 when damage is taken
 	}
 
 	/**
@@ -122,9 +122,9 @@ public class Boss extends FighterPlane {
 	 *
 	 * @return the BossHealth instance representing the boss's health bar.
 	 */
-	public BossHealth getBossHealth() {
-		return bossHealth;
-	}
+//	public BossHealth getBossHealth() {
+//		return bossHealth;
+//	}
 
 	/**
 	 * Sets the boss's health, ensuring it does not go below zero.

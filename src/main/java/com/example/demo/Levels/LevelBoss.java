@@ -7,8 +7,6 @@ import com.example.demo.LevelController.LevelView;
 import com.example.demo.Plane.UserPlane;
 import javafx.scene.Scene;
 
-import java.net.URL;
-
 /**
  * LevelBoss represents the final level of the game where the player faces a boss.
  * It extends LevelParent and handles the specific logic for the boss battle.
@@ -54,15 +52,15 @@ public class LevelBoss extends LevelParent {
 
 		// Check if the player is destroyed, triggering a loss
 		if (userIsDestroyed()) {
-			loseGame();
+			loseGame();  // Call loseGame to end the game
 		}
+
 		// Check if the boss is destroyed, triggering a win
-		else if (boss.isDestroyed()) {
+		if (boss.isDestroyed()) {
 			System.out.println("Boss Destroyed");
-			winGame();
+			winGame();  // Call winGame to end the game
 		}
 	}
-
 	/**
 	 * Initialize friendly units in the game, such as the player's plane.
 	 */
@@ -127,8 +125,8 @@ public class LevelBoss extends LevelParent {
 	 * when the level starts. Currently empty for LevelBoss.
 	 */
 	@Override
-	protected void initializeLevel() {
-		// Placeholder for initialization logic if needed in the future.
-		// For now, the method is empty.
+	public void initializeLevel() {
+		// Call the parent method with the current level name
+		super.initializeLevel("Boss", 15, "Defeat The Boss!!");
 	}
 }
