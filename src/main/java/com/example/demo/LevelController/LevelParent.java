@@ -1,7 +1,5 @@
 package com.example.demo.LevelController;
 
-import java.awt.*;
-import java.net.URL;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -9,15 +7,14 @@ import java.util.stream.Collectors;
 import com.example.demo.UI.*;
 import com.example.demo.controller.Main;
 import javafx.application.Platform;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 
 import com.example.demo.Actor.ActiveActorDestructible;
-import com.example.demo.Levels.Music;
+import com.example.demo.MusicController.Music;
+import com.example.demo.MusicController.Bgm;
+
 import com.example.demo.Plane.FighterPlane;
 import com.example.demo.Plane.UserPlane;
-import com.example.demo.Plane.UserPlane2;
 import com.example.demo.controller.Controller;
 import javafx.animation.*;
 import javafx.scene.Group;
@@ -25,7 +22,6 @@ import javafx.scene.Scene;
 import javafx.scene.image.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.*;
-import javafx.scene.layout.Pane;
 import javafx.scene.text.TextAlignment;
 import javafx.util.Duration;
 
@@ -66,7 +62,7 @@ public abstract class LevelParent extends Observable {
 	// Pause state
 	protected boolean isPaused = false;
 	private boolean isCooldown = false; // Cooldown state
-
+	private Bgm bgm;
 	private Music soundManager;
 	private String collisionSoundFile;
 	private CollisionEffect collisionEffect;
@@ -146,12 +142,19 @@ public abstract class LevelParent extends Observable {
 	 * @return the initialized scene.
 	 */
 	public Scene initializeScene() {
+		// Initialize the Bgm instance and play background music
+		// Initialize other components of the scene
 		initializeBackground();
 		initializeFriendlyUnits();
 		levelView.showHeartDisplay();
 		levelView.showKillDisplay();
 		levelView.entryMessage(MESSAGE_ON_SCREEN);
+		if (bgm == null) {
+			bgm = new Bgm(0.5);  // Initialize bgm with volume
+		}
+		bgm.playBGM("background.mp3");
 		return scene;
+
 	}
 
 	/**

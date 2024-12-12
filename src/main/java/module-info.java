@@ -13,4 +13,5 @@ module com.example.demo {
     opens com.example.demo.Boss to javafx.fxml;
     opens com.example.demo.UI to javafx.fxml;
     opens com.example.demo.LevelController to javafx.fxml;
+    opens com.example.demo.MusicController to javafx.fxml;
 }
