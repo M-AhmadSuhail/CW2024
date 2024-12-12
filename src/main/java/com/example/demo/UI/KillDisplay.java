@@ -43,7 +43,7 @@ public class KillDisplay {
         container = new HBox();  // Create a new HBox to hold the kill image and label
         container.setLayoutX(containerXPosition);  // Set the X-position of the container
         container.setLayoutY(containerYPosition);  // Set the Y-position of the container
-        container.setSpacing(10);  // Add spacing between the image and label for visual clarity
+        container.setSpacing(10);  // Add spacing between the image
     }
 
     /**
