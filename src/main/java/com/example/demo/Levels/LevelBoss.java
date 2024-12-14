@@ -5,6 +5,7 @@ import com.example.demo.Boss.BossHealth;
 import com.example.demo.LevelController.LevelParent;
 import com.example.demo.LevelController.LevelView;
 import com.example.demo.Plane.UserPlane;
+import javafx.scene.Group;
 import javafx.scene.Scene;
 
 /**
@@ -129,4 +130,12 @@ public class LevelBoss extends LevelParent {
 		// Call the parent method with the current level name
 		super.initializeLevel("Boss", 15, "Defeat The Boss!!");
 	}
+	public Group getLevelRoot() {
+		return getRoot();
+	}
+	public Boss getBoss() {
+		// Some logic to return a Boss object
+		return this.boss;
+	}
+
 }

@@ -29,7 +29,7 @@ public class GamePause {
     private final Runnable onExit;
 
     // Stage for the pause menu
-    private Stage pauseStage;
+    protected Stage pauseStage;
 
     /**
      * Constructor to initialize the GamePause menu with action handlers.

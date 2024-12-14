@@ -9,7 +9,7 @@ import java.util.Objects;
 
 public class Bgm {
 
-    private MediaPlayer mediaPlayer;
+    protected MediaPlayer mediaPlayer;
     private double musicVolume;
 
     public Bgm(double volume) {

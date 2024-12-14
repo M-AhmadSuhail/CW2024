@@ -13,8 +13,8 @@ import java.net.URL;
  */
 public class Music {
 
-    private Clip clip;
-    private MediaPlayer mediaPlayer;
+    protected Clip clip;
+    protected MediaPlayer mediaPlayer;
     private String currentSoundPath;
 
     /**
@@ -95,12 +95,12 @@ public class Music {
     /**
      * Example main method to test the music functionality.
      */
-    public static void main(String[] args) {
-        Music music = new Music();
-        // Play a background music file
-        music.playSound("src/main/resources/music/background.mp3");
-
-        // Play a sound effect (e.g., collision)
-        music.playSound("src/main/resources/sounds/collision.wav");
-    }
+//    public static void main(String[] args) {
+//        Music music = new Music();
+//        // Play a background music file
+//        music.playSound("src/main/resources/music/background.mp3");
+//
+//        // Play a sound effect (e.g., collision)
+//        music.playSound("src/main/resources/sounds/collision.wav");
+//    }
 }

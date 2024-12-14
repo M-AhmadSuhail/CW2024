@@ -31,8 +31,8 @@ public class Controller implements Observer {
 	private final Stage stage;
 	private final LevelView levelView;
 	private LevelParent currentLevel;
-	private boolean isPaused = false; // Tracks the pause state
-	private final Timeline timeline;
+	protected boolean isPaused = false; // Tracks the pause state
+	protected Timeline timeline;
 
 	/**
 	 * Constructs a new Controller object.
@@ -127,7 +127,7 @@ public class Controller implements Observer {
 	/**
 	 * Pauses the game and the main game loop. Displays the pause menu.
 	 */
-	private void pauseGame() {
+    protected void pauseGame() {
 		System.out.println("Game Paused");
 		isPaused = true;
 
@@ -143,7 +143,7 @@ public class Controller implements Observer {
 	/**
 	 * Resumes the game and the main game loop. Hides the pause menu.
 	 */
-	private void resumeGame() {
+    protected void resumeGame() {
 		System.out.println("Game Resumed");
 		isPaused = false;
 
@@ -183,7 +183,7 @@ public class Controller implements Observer {
 	/**
 	 * Closes the game and exits the application.
 	 */
-	private void closeGame() {
+    protected void closeGame() {
 		System.out.println("Exiting game...");
 		System.exit(0);
 	}

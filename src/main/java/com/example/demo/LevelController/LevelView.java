@@ -31,12 +31,12 @@ public class LevelView {
     private static final int LOSS_SCREEN_Y_POSITION = 175;
 
     private final Group root;
-    private final WinImage winImage;
-    private final GameOverImage gameOverImage;
-    private final HeartDisplay heartDisplay;
-    private final KillDisplay killDisplay;
-    private final ShieldImage shieldImage;
-    private BossHealth bossHealth;
+    protected final WinImage winImage;
+    protected final GameOverImage gameOverImage;
+    protected final HeartDisplay heartDisplay;
+    protected final KillDisplay killDisplay;
+    protected final ShieldImage shieldImage;
+    protected BossHealth bossHealth;
 
 
     private Timeline timeline;
@@ -153,50 +153,5 @@ public class LevelView {
         this.controller = controller;
     }
 
-    /**
-     * Displays an entry message on the screen.
-     * The message appears after a brief pause, and then fades away.
-     *
-     * @param message the message to display
-     */
-    public void entryMessage(String message) {
-        Label entryMessageLabel = new Label(message);
-        entryMessageLabel.setStyle("-fx-font-family: 'Arial'; " +
-                "-fx-font-size: 60px; " +
-                "-fx-text-fill: #FFFFE0;");   // Removed the background color style
-
-        // Make the label invisible initially
-        entryMessageLabel.setOpacity(0.0);
-
-        // Add label to root
-        root.getChildren().add(entryMessageLabel);
-
-        // Bind the label's position to center it on the screen
-        entryMessageLabel.layoutXProperty().bind(
-                Bindings.createDoubleBinding(() -> (Main.getScreenWidth() - entryMessageLabel.getWidth()) / 2,
-                        entryMessageLabel.widthProperty()));
-
-        entryMessageLabel.layoutYProperty().bind(
-                Bindings.createDoubleBinding(() -> (Main.getScreenHeight() - entryMessageLabel.getHeight()) / 2,
-                        entryMessageLabel.heightProperty()));
-
-        // Immediately show the message (no delay)
-        FadeTransition fadeIn = new FadeTransition(Duration.seconds(1), entryMessageLabel);
-        fadeIn.setFromValue(0.0);
-        fadeIn.setToValue(1.0);
-        fadeIn.setOnFinished(e -> {
-            // Fade out the message after it has appeared
-            PauseTransition waitBeforeFadeOut = new PauseTransition(Duration.seconds(1.5));
-            waitBeforeFadeOut.setOnFinished(ev -> {
-                FadeTransition fadeOut = new FadeTransition(Duration.seconds(2), entryMessageLabel);
-                fadeOut.setFromValue(1.0);
-                fadeOut.setToValue(0.0);
-                fadeOut.setOnFinished(fadeEvent -> root.getChildren().remove(entryMessageLabel));
-                fadeOut.play();
-            });
-            waitBeforeFadeOut.play();
-        });
-        fadeIn.play();
-    }
 
 }

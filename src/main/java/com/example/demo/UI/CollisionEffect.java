@@ -32,7 +32,7 @@ public class CollisionEffect {
      * @param y the Y-coordinate for the center of the explosion
      */
     public void displayEffect(double x, double y) {
-        System.out.println("Displaying explosion effect at: (" + x + ", " + y + ")");//Debugging
+        System.out.println("Displaying explosion effect at: (" + x + ", " + y + ")");
 
         // Load the explosion image from resources
         Image explosionImage = new Image(getClass().getResource("/com/example/demo/images/explosion2.png").toExternalForm());
@@ -46,7 +46,7 @@ public class CollisionEffect {
         collisionImage.setX(x - collisionImage.getFitWidth() / 2);
         collisionImage.setY(y - collisionImage.getFitHeight() / 2);
 
-        // Ensure the image is added to the scene graph on the JavaFX Application Thread
+        // Add image to root node on JavaFX thread
         Platform.runLater(() -> root.getChildren().add(collisionImage));
 
         // Create a fade-out animation for the explosion image
@@ -54,9 +54,14 @@ public class CollisionEffect {
         fadeTransition.setFromValue(1.0); // Start fully opaque
         fadeTransition.setToValue(0.0); // Fade to fully transparent
         fadeTransition.setOnFinished(e ->
-                // Remove the image from the scene graph after the fade animation finishes
                 Platform.runLater(() -> root.getChildren().remove(collisionImage))
         );
-        fadeTransition.play(); // Start the animation
+
+        // Store the fade transition in the image properties
+        collisionImage.getProperties().put("fadeTransition", fadeTransition);
+
+        // Play the fade transition
+        fadeTransition.play();
     }
+
 }

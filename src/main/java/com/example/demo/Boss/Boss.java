@@ -255,7 +255,7 @@ public class Boss extends FighterPlane {
 	/**
 	 * Activates the shield, making the boss invulnerable to damage for a short period.
 	 */
-	private void activateShield() {
+    protected void activateShield() {
 		isShielded = true;
 	}
 
@@ -265,5 +265,8 @@ public class Boss extends FighterPlane {
 	private void deactivateShield() {
 		isShielded = false;
 		framesWithShieldActivated = 0; // Reset the shield timer
+	}
+	public void move() {
+		setLayoutY(getLayoutY() + 10);  // Move the boss down by 10 units
 	}
 }
