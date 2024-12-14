@@ -26,7 +26,7 @@ import javax.swing.*;
  */
 public class Controller implements Observer {
 
-	public static final String LEVEL_ONE_CLASS_NAME = "com.example.demo.Levels.LevelBoss";
+	public static final String LEVEL_ONE_CLASS_NAME = "com.example.demo.Levels.LevelOne";
 
 	private final Stage stage;
 	private final LevelView levelView;
